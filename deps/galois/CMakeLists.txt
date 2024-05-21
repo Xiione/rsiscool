@@ -10,6 +10,8 @@ add_library(galois STATIC
     src/galois/GaloisFieldPolynomial.cpp
 )
 
+target_link_libraries(galois PRIVATE eigen)
+
 target_include_directories(
     galois PUBLIC
     ${PROJECT_SOURCE_DIR}/src

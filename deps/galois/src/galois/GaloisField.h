@@ -43,6 +43,7 @@ namespace galois
 
        GaloisField& operator=(const GaloisField& gf);
        bool operator==(const GaloisField& gf);
+       bool operator!=(const GaloisField& gf);
 
 
        inline GFSymbol index(const GFSymbol value) const

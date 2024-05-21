@@ -130,6 +130,13 @@ namespace galois
    }
 
 
+   // added to silence c++20 standard warning
+   bool GaloisField::operator!=(const GaloisField& gf)
+   {
+      return !(*this == gf) ;
+   }
+
+
    GaloisField& GaloisField::operator=(const GaloisField& gf)
    {
       if (this == &gf)

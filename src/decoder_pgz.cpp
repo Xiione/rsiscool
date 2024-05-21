@@ -1,9 +1,13 @@
 #include <iostream>
 #include <vector>
 
-#include "galois/GaloisField.h"
-#include "galois/GaloisFieldElement.h"
-#include "galois/GaloisFieldPolynomial.h"
+#include <galois/GaloisField.h>
+#include <galois/GaloisFieldElement.h>
+#include <galois/GaloisFieldPolynomial.h>
+
+#include <galois/NumTraits.hpp>
+
+#include <Eigen/Core>
 
 const int Q = 8;
 const int N = Q - 1;
@@ -36,10 +40,12 @@ int main() {
     for (int i = 0; i < N - K; ++i) {
       // a^i * a
       cur_primel_pow *= SYMBOL_PRIMEL;
-      // std::cout << "Primitive element power " << i + 1 << ": " << cur_primel_pow
+      // std::cout << "Primitive element power " << i + 1 << ": " <<
+      // cur_primel_pow
       //           << std::endl;
       minpoly_coeff[0] = cur_primel_pow;
-      // std::cout << "Additive inverse: " << GFE(&SYMBOL_GF, 0) - cur_primel_pow
+      // std::cout << "Additive inverse: " << GFE(&SYMBOL_GF, 0) -
+      // cur_primel_pow
       //           << std::endl;
 
       // *= (z - a^(i + 1))
@@ -47,7 +53,6 @@ int main() {
           galois::GaloisFieldPolynomial(&SYMBOL_GF, 1, minpoly_coeff.data());
     }
   }
-
 
   std::cout << "Enter u:" << std::endl;
 
@@ -79,4 +84,6 @@ int main() {
   //   std::cin >> x;
   //   u.emplace_back(&SYMBOL_GF, x);
   // }
+
+  Eigen::Matrix<galois::GaloisFieldElement, Eigen::Dynamic, Eigen::Dynamic> m;
 }
