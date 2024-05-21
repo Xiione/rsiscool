@@ -11,13 +11,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 
 add_subdirectory(deps/galois)
-# add_subdirectory(deps/eigen)
+add_subdirectory(deps/eigen)
 
 set(APP_SRC src/decoder_pgz.cpp)
 
 add_executable(decoder ${APP_SRC})
 
-target_link_libraries(decoder PRIVATE
-    galois
-  # eigen
-)
+target_link_libraries(decoder PRIVATE galois eigen)
