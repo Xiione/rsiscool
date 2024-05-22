@@ -13,8 +13,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 add_subdirectory(deps/galois)
 add_subdirectory(deps/eigen)
 
-set(APP_SRC src/decoder_pgz.cpp)
+set(APP_SRC 
+    src/main.cpp
+    src/ReedSolomon.cpp
+)
 
-add_executable(decoder ${APP_SRC})
+add_executable(qriscool ${APP_SRC})
 
-target_link_libraries(decoder PRIVATE galois eigen)
+target_link_libraries(qriscool PRIVATE galois eigen)

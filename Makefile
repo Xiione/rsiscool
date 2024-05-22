@@ -4,7 +4,7 @@
 TYPE = debug
 
 build:
-	cmake --build build/$(TYPE) --target decoder
+	cmake --build build/$(TYPE) --target qriscool
 	cp build/$(TYPE)/compile_commands.json .
 
 run:
