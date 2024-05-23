@@ -53,7 +53,7 @@ std::optional<GaloisFieldPolynomial> decodePGZ(CodeFormat fmt,
                                                                       t - 1);
   // initialize M with syndromes
   for (int i = 0; i < t; ++i) {
-    M(0, i) = r(a)
+    M(0, i) = r(fmt.primEl ^ i);
   }
 
   for (int v = t - 1; v > 0; --v) {
