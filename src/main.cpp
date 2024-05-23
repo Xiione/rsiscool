@@ -65,15 +65,24 @@ int main() {
   std::cout << "PGZ Decoder took "
             << std::chrono::duration_cast<std::chrono::nanoseconds>(between -
                                                                     start)
-                   .count() << " nanoseconds:" << std::endl;
-  for(auto &gfe : resPGZ)
-    std::cout << gfe.poly() << ' ';
-  std::cout << std::endl;
+                   .count()
+            << " nanoseconds:" << std::endl;
+
+  if (resPGZ) {
+    for (size_t i = 0; i <= resPGZ->deg(); ++i)
+      std::cout << resPGZ.value()[i] << ' ';
+    std::cout << std::endl;
+  } else
+    std::cout << "PGZ decoding failed" << std::endl;
   std::cout << "BM Decoder took "
             << std::chrono::duration_cast<std::chrono::nanoseconds>(end -
                                                                     between)
-                   .count() << " nanoseconds:" << std::endl;
-  for(auto &gfe : resBM)
-    std::cout << gfe.poly() << ' ';
-  std::cout << std::endl;
+                   .count()
+            << " nanoseconds:" << std::endl;
+  if (resBM) {
+    for (size_t i = 0; i <= resBM->deg(); ++i)
+      std::cout << resBM.value()[i] << ' ';
+    std::cout << std::endl;
+  } else
+    std::cout << "BM decoding failed" << std::endl;
 }

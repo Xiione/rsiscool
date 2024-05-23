@@ -1,3 +1,4 @@
+#include <optional>
 #include <vector>
 
 #include <Eigen/Core>
@@ -10,53 +11,58 @@
 
 using namespace galois;
 
-GaloisFieldPolynomial createGenPoly(GaloisField &gf, size_t deg,
-                                    size_t offset) {
-  std::vector<GaloisFieldElement> coeffInit = {GaloisFieldElement(&gf, 1)};
-  GaloisFieldPolynomial genPoly(&gf, 0, coeffInit.data());
+GaloisFieldPolynomial createGenPoly(CodeFormat fmt) {
+  size_t genDeg = fmt.N - fmt.K;
+  std::vector<GaloisFieldElement> coeffInit = {
+      GaloisFieldElement(&fmt.field, 1)};
+  GaloisFieldPolynomial genPoly(&fmt.field, 0, coeffInit.data());
 
   // (z - a^i)
-  std::vector<GaloisFieldElement> minPolyCoeff = {GaloisFieldElement(&gf, 0),
-                                                  GaloisFieldElement(&gf, 1)};
+  std::vector<GaloisFieldElement> minPolyCoeff = {
+      GaloisFieldElement(&fmt.field, 0), GaloisFieldElement(&fmt.field, 1)};
 
-  GaloisFieldElement curPrimElPow(&gf, 1);
-
-  for (size_t i = 0; i < offset; ++i) {
-    curPrimElPow *= GaloisFieldElement(&gf, ALPHA);
-  }
-
-  for (size_t i = 0; i < deg; ++i) {
-    minPolyCoeff[0] = curPrimElPow;
+  for (size_t i = 0; i < genDeg; ++i) {
+    minPolyCoeff[0] = fmt.primEl ^ (fmt.primPowOffset + i);
     // *= (z - a^(i + 1))
-    genPoly *= GaloisFieldPolynomial(&gf, 1, minPolyCoeff.data());
-    curPrimElPow *= GaloisFieldElement(&gf, ALPHA);
+    genPoly *= GaloisFieldPolynomial(&fmt.field, 1, minPolyCoeff.data());
   }
 
-  assert(genPoly.deg() == deg);
+  assert(genPoly.deg() == genDeg);
   return genPoly;
 }
 
-GaloisFieldPolynomial encode(GaloisField &gf,
-                             std::vector<GaloisFieldElement> &v_u, size_t N) {
-  size_t K = v_u.size();
-  GaloisFieldPolynomial c(&gf, K - 1, v_u.data());
+GaloisFieldPolynomial encode(CodeFormat fmt,
+                             std::vector<GaloisFieldElement> &u) {
+  GaloisFieldPolynomial c(&fmt.field, fmt.K - 1, u.data());
 
   // u(z) * z^(n - k)
-  c <<= N - K;
-  assert(c.deg() == N - 1);
+  c <<= fmt.N - fmt.K;
+  assert(c.deg() == fmt.N - 1);
 
   // u(z) * z^(n - k) - R_{g(z)}[u(z) * z^(n-k)]
-  return c - (c % createGenPoly(gf, N - K, 1));
+  return c - (c % createGenPoly(fmt));
 }
 
-std::vector<GaloisFieldElement> decodePGZ(GaloisField &gf,
-                                           const GaloisFieldPolynomial &r,
-                                           size_t N, size_t K) {
-  // stuff
+std::optional<GaloisFieldPolynomial> decodePGZ(CodeFormat fmt,
+                                               const GaloisFieldPolynomial &r,
+                                               size_t const *res_errs) {
+  // maximum correctable errors
+  size_t t = (fmt.N - fmt.K + 1) / 2;
+
+  Eigen::Matrix<GaloisFieldElement, Eigen::Dynamic, Eigen::Dynamic> M(t - 1,
+                                                                      t - 1);
+  // initialize M with syndromes
+  for (int i = 0; i < t; ++i) {
+    M(0, i) = r(a)
+  }
+
+  for (int v = t - 1; v > 0; --v) {
+  }
+  return std::nullopt;
 }
 
-std::vector<GaloisFieldElement> decodeBM(GaloisField &gf,
-                                           const GaloisFieldPolynomial &r,
-                                           size_t N, size_t K) {
-  // stuff
+std::optional<GaloisFieldPolynomial> decodeBM(CodeFormat fmt,
+                                              const GaloisFieldPolynomial &r,
+                                              size_t const *res_errs) {
+  return std::nullopt;
 }

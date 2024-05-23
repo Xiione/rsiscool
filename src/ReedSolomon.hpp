@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include <galois/GaloisField.h>
@@ -8,17 +9,30 @@
 
 #define ALPHA 2
 
-galois::GaloisFieldPolynomial createGenPoly(galois::GaloisField &gf, size_t deg,
-                                            size_t offset);
+struct CodeFormat {
+  galois::GaloisField &field;
+  size_t N;
+  size_t K;
+  galois::GaloisFieldElement primEl;
+  size_t primPowOffset;
+
+  CodeFormat(galois::GaloisField &field, size_t N, size_t K,
+             size_t primPowOffset = 0)
+      : field(field), N(N), K(K), primPowOffset(primPowOffset) {
+    primEl = galois::GaloisFieldElement(&field, ALPHA);
+  }
+};
+
+galois::GaloisFieldPolynomial createGenPoly(CodeFormat fmt);
 
 galois::GaloisFieldPolynomial
-encode(galois::GaloisField &gf, std::vector<galois::GaloisFieldElement> &v_u,
-       size_t N);
+encode(CodeFormat fmt, std::vector<galois::GaloisFieldElement> &u);
 
-std::vector<galois::GaloisFieldElement>
-decodePGZ(galois::GaloisField &gf, const galois::GaloisFieldPolynomial &r,
-       size_t N, size_t K);
+// returns nullopt if at least N - K errors => error cannot be solved for
+std::optional<galois::GaloisFieldPolynomial>
+decodePGZ(CodeFormat fmt, const galois::GaloisFieldPolynomial &r,
+          size_t const *resErrs = nullptr);
 
-std::vector<galois::GaloisFieldElement>
-decodeBM(galois::GaloisField &gf, const galois::GaloisFieldPolynomial &r,
-       size_t N, size_t K);
+std::optional<galois::GaloisFieldPolynomial>
+decodeBM(CodeFormat fmt, const galois::GaloisFieldPolynomial &r,
+          size_t const *resErrs = nullptr);
