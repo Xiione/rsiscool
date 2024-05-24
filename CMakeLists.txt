@@ -10,14 +10,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 
-add_subdirectory(deps/galois)
-add_subdirectory(deps/givaro)
+set(APP_SRC src/main.cpp src/ReedSolomon.cpp)
 
-set(APP_SRC 
-    src/main.cpp
-    src/ReedSolomon.cpp
-)
+set(GIVARO_DIR deps/givaro)
+include_directories(${GIVARO_DIR}/include)
+find_library(
+  GIVARO_LIB
+  NAMES givaro
+  PATHS ${GIVARO_LIB}/lib)
 
 add_executable(qriscool ${APP_SRC})
-
-target_link_libraries(qriscool PRIVATE givaro)
+target_link_libraries(qriscool PRIVATE GIVARO_LIB)
