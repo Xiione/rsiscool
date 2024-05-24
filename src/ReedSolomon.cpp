@@ -1,7 +1,6 @@
 #include <optional>
 #include <vector>
 
-#include <Eigen/Core>
 #include <galois/GaloisField.h>
 #include <galois/GaloisFieldElement.h>
 #include <galois/GaloisFieldPolynomial.h>
@@ -11,7 +10,7 @@
 
 using namespace galois;
 
-GaloisFieldPolynomial createGenPoly(CodeFormat fmt) {
+GaloisFieldPolynomial createGenPoly(CodeFormat &fmt) {
   size_t genDeg = fmt.N - fmt.K;
   std::vector<GaloisFieldElement> coeffInit = {
       GaloisFieldElement(&fmt.field, 1)};
@@ -31,7 +30,7 @@ GaloisFieldPolynomial createGenPoly(CodeFormat fmt) {
   return genPoly;
 }
 
-GaloisFieldPolynomial encode(CodeFormat fmt,
+GaloisFieldPolynomial encode(CodeFormat &fmt,
                              std::vector<GaloisFieldElement> &u) {
   GaloisFieldPolynomial c(&fmt.field, fmt.K - 1, u.data());
 
@@ -43,25 +42,44 @@ GaloisFieldPolynomial encode(CodeFormat fmt,
   return c - (c % createGenPoly(fmt));
 }
 
-std::optional<GaloisFieldPolynomial> decodePGZ(CodeFormat fmt,
+std::optional<GaloisFieldPolynomial> decodePGZ(CodeFormat &fmt,
                                                const GaloisFieldPolynomial &r,
                                                size_t const *res_errs) {
+  using namespace Eigen;
+
   // maximum correctable errors
   size_t t = (fmt.N - fmt.K + 1) / 2;
 
-  Eigen::Matrix<GaloisFieldElement, Eigen::Dynamic, Eigen::Dynamic> M(t - 1,
-                                                                      t - 1);
-  // initialize M with syndromes
-  for (int i = 0; i < t; ++i) {
-    M(0, i) = r(fmt.primEl ^ i);
+  Matrix<GaloisFieldElement, Dynamic, Dynamic> M(t - 1, t - 1);
+  // initialize M with syndromes, equation (5.7) from Martini's paper
+  // optimize maybe
+  for (int i = 0; i < t - 1; ++i) {
+    for (int j = 0; j < t - 1; ++j) {
+      M(i, j) = r(fmt.primEl ^ (i + j));
+    }
+  }
+
+  Matrix<GaloisFieldElement, Dynamic, 1> S(t - 1);
+  for (int i = 0; i < t - 1; ++i) {
+    S(i) = r(fmt.primEl ^ (t - 1 + i));
   }
 
   for (int v = t - 1; v > 0; --v) {
+    // attempting to solve with one less error
+    M.conservativeResize(v, v);
+    S.conservativeResize(v);
+
+    // coefficients of locator polynomial
+    Matrix<GaloisFieldElement, Dynamic, 1> V = M.colPivHouseholderQr().solve(S);
+    bool solExists = (M * V).isApprox(S);
+
+    std::cout << "v=" << v << ": " << 
   }
+
   return std::nullopt;
 }
 
-std::optional<GaloisFieldPolynomial> decodeBM(CodeFormat fmt,
+std::optional<GaloisFieldPolynomial> decodeBM(CodeFormat &fmt,
                                               const GaloisFieldPolynomial &r,
                                               size_t const *res_errs) {
   return std::nullopt;

@@ -10,6 +10,7 @@ template <> struct NumTraits<galois::GaloisFieldElement> {
   typedef galois::GaloisFieldElement Real;
   typedef galois::GaloisFieldElement NonInteger;
   typedef galois::GaloisFieldElement Nested;
+  typedef galois::GaloisFieldElement Literal;
 
   enum {
     IsComplex = 0,
@@ -20,6 +21,9 @@ template <> struct NumTraits<galois::GaloisFieldElement> {
     AddCost = 1, // just an xor
     MulCost = 1, // uses LUT by default
   };
+
+  static inline galois::GaloisFieldElement epsilon() { return 0; }
+  static inline galois::GaloisFieldElement dummy_precision() { return 0; }
 };
 
 } // namespace Eigen
@@ -35,5 +39,4 @@ inline GaloisFieldElement abs2(const GaloisFieldElement &gfe) {
 inline GaloisFieldElement pow(const GaloisFieldElement &gfe, const int &n) {
   return gfe ^ n;
 }
-
 } // namespace galois

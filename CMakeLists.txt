@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 
 add_subdirectory(deps/galois)
-add_subdirectory(deps/eigen)
+add_subdirectory(deps/givaro)
 
 set(APP_SRC 
     src/main.cpp
@@ -20,4 +20,4 @@ set(APP_SRC
 
 add_executable(qriscool ${APP_SRC})
 
-target_link_libraries(qriscool PRIVATE galois eigen)
+target_link_libraries(qriscool PRIVATE givaro)

@@ -9,17 +9,6 @@
 
 #include "ReedSolomon.hpp"
 
-constexpr int Q = 8;
-constexpr int N = Q - 1;
-constexpr int K = 3;
-
-// const std::vector<unsigned int> BIGSYMBOL_PRIMPOLY = {1, 1, 1, 1, 0, 0, 0,
-// 1};
-const std::vector<unsigned int> SYMBOL_PRIMPOLY = {1, 1, 0, 1};
-galois::GaloisField SYMBOL_GF(32 - __builtin_clz(Q) - 1,
-                              SYMBOL_PRIMPOLY.data());
-const galois::GaloisFieldElement SYMBOL_PRIMEL(&SYMBOL_GF, ALPHA);
-
 template <typename Func>
 auto measure_time(Func func, const std::vector<int> &data) {
   auto start = std::chrono::high_resolution_clock::now();
@@ -30,36 +19,43 @@ auto measure_time(Func func, const std::vector<int> &data) {
 }
 
 int main() {
+  int Q = 8;
+  const std::vector<unsigned int> symbolPrimPoly = {1, 1, 0, 1};
+  galois::GaloisField symbolGf(32 - __builtin_clz(Q) - 1,
+                                symbolPrimPoly.data());
+  CodeFormat fmt(symbolGf, Q - 1, 3, 1);
   std::cout << "Enter u:" << std::endl;
+
+
   std::vector<galois::GaloisFieldElement> u;
-  for (int i = 0; i < K; ++i) {
+  for (int i = 0; i < fmt.K; ++i) {
     int x;
     std::cin >> x;
-    u.emplace_back(&SYMBOL_GF, x);
+    u.emplace_back(&symbolGf, x);
   }
 
-  galois::GaloisFieldPolynomial c = encode(SYMBOL_GF, u, N);
+  galois::GaloisFieldPolynomial c = encode(fmt, u);
 
   std::cout << "Encoded c:" << std::endl;
-  for (int i = 0; i < N; ++i) {
+  for (int i = 0; i < fmt.N; ++i) {
     std::cout << c[i].poly() << ' ';
   }
   std::cout << std::endl;
 
   std::cout << "Enter received c:" << std::endl;
   std::vector<galois::GaloisFieldElement> vr;
-  for (int i = 0; i < K; ++i) {
+  for (int i = 0; i < fmt.N; ++i) {
     int x;
     std::cin >> x;
-    u.emplace_back(&SYMBOL_GF, x);
+    u.emplace_back(&symbolGf, x);
   }
 
-  galois::GaloisFieldPolynomial r(&SYMBOL_GF, N, vr.data());
+  galois::GaloisFieldPolynomial r(&symbolGf, fmt.N, vr.data());
 
   auto start = std::chrono::high_resolution_clock::now();
-  auto resPGZ = decodePGZ(SYMBOL_GF, r, N, K);
+  auto resPGZ = decodePGZ(fmt, r);
   auto between = std::chrono::high_resolution_clock::now();
-  auto resBM = decodeBM(SYMBOL_GF, r, N, K);
+  auto resBM = decodeBM(fmt, r);
   auto end = std::chrono::high_resolution_clock::now();
 
   std::cout << "PGZ Decoder took "

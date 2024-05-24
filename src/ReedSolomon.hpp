@@ -23,16 +23,16 @@ struct CodeFormat {
   }
 };
 
-galois::GaloisFieldPolynomial createGenPoly(CodeFormat fmt);
+galois::GaloisFieldPolynomial createGenPoly(CodeFormat &fmt);
 
 galois::GaloisFieldPolynomial
-encode(CodeFormat fmt, std::vector<galois::GaloisFieldElement> &u);
+encode(CodeFormat &fmt, std::vector<galois::GaloisFieldElement> &u);
 
 // returns nullopt if at least N - K errors => error cannot be solved for
 std::optional<galois::GaloisFieldPolynomial>
-decodePGZ(CodeFormat fmt, const galois::GaloisFieldPolynomial &r,
+decodePGZ(CodeFormat &fmt, const galois::GaloisFieldPolynomial &r,
           size_t const *resErrs = nullptr);
 
 std::optional<galois::GaloisFieldPolynomial>
-decodeBM(CodeFormat fmt, const galois::GaloisFieldPolynomial &r,
+decodeBM(CodeFormat &fmt, const galois::GaloisFieldPolynomial &r,
           size_t const *resErrs = nullptr);
