@@ -10,6 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 
 # libraries
+add_subdirectory(deps/galois)
+
 set(GMP_VERSION 6.3.0)
 set(GMP_PATH /opt/homebrew/Cellar/gmp/${GMP_VERSION})
 find_library(
@@ -23,9 +25,17 @@ find_library(
   NAMES givaro
   PATHS ${GIVARO_PATH}/lib)
 
-include_directories(${GIVARO_PATH}/include ${GMP_PATH}/include)
 
 # app
 set(APP_SRC src/main.cpp src/ReedSolomon.cpp)
 add_executable(qriscool ${APP_SRC})
-target_link_libraries(qriscool PRIVATE ${GIVARO_LIB} ${GMP_LIB})
+
+target_link_libraries(qriscool PRIVATE galois ${GIVARO_LIB} ${GMP_LIB})
+target_include_directories(qriscool SYSTEM PRIVATE ${GIVARO_PATH}/include ${GMP_PATH}/include)
+
+
+target_compile_options(qriscool PRIVATE
+    -Wall -Wextra -Wshadow -pedantic
+    -Wno-missing-field-initializers
+    -Wno-deprecated-declarations
+  )
