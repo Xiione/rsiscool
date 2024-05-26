@@ -12,30 +12,37 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 # libraries
 add_subdirectory(deps/galois)
 
-set(GMP_VERSION 6.3.0)
-set(GMP_PATH /opt/homebrew/Cellar/gmp/${GMP_VERSION})
-find_library(
-  GMP_LIB
-  NAMES gmp
-  PATHS ${GMP_PATH}/lib)
+set(BREW_PATH /opt/homebrew/Cellar)
 
-set(GIVARO_PATH deps/givaro)
-find_library(
-  GIVARO_LIB
-  NAMES givaro
-  PATHS ${GIVARO_PATH}/lib)
+# set(GMP_VERSION 6.3.0)
+# set(GMP_PATH ${BREW_PATH}/gm/${GMP_VERSION})
+# find_library(
+#   GMP_LIB
+#   NAMES gmp
+#   PATHS ${GMP_PATH}/lib)
+#
+# set(GF2X_VERSION 1.3.99)
+# set(GF2X_PATH ${BREW_PATH}/gf2x/${GF2X_VERSION})
+# find_library(
+#   GF2X_LIB
+#   NAMES gf2x
+#   PATHS ${GF2X_PATH}/lib)
 
+set(NTL_VERSION 11.5.1)
+set(NTL_PATH ${BREW_PATH}/ntl/${NTL_VERSION})
+find_library(
+  NTL_LIB
+  NAMES ntl
+  PATHS ${NTL_PATH}/lib)
 
 # app
 set(APP_SRC src/main.cpp src/ReedSolomon.cpp)
 add_executable(qriscool ${APP_SRC})
 
-target_link_libraries(qriscool PRIVATE galois ${GIVARO_LIB} ${GMP_LIB})
-target_include_directories(qriscool SYSTEM PRIVATE ${GIVARO_PATH}/include ${GMP_PATH}/include)
+target_link_libraries(qriscool PRIVATE galois ${NTL_LIB})
+target_include_directories(
+  qriscool SYSTEM PRIVATE ${NTL_PATH}/include)
 
-
-target_compile_options(qriscool PRIVATE
-    -Wall -Wextra -Wshadow -pedantic
-    -Wno-missing-field-initializers
-    -Wno-deprecated-declarations
-  )
+target_compile_options(
+  qriscool PRIVATE -g -Wall -Wextra -Wshadow -pedantic
+                   -Wno-missing-field-initializers -Wno-deprecated-declarations)

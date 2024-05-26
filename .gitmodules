@@ -1,3 +1,0 @@
-[submodule "deps/givaro"]
-	path = deps/givaro
-	url = https://github.com/linbox-team/givaro.git

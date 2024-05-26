@@ -4,10 +4,11 @@
 TYPE = debug
 
 install:
-	cd deps/givaro
-
-	# also add --with-gmp=<path-to-gmp>/x.x.x/ if gmp not found
-	./autogen.sh --prefix=$(shell pwd) --disable-shared ABI=64 CFLAGS="-m64 -O2"
+ 	# pre-install:
+	# brew install parkerdiamond/gf2x/gf2x
+	# brew install ntl
+	# brew edit ntl and add option NTL_GF2X_LIB=on
+	# brew reinstall --build-from-source ntl 
 
 build:
 	cmake --build build/$(TYPE) --target qriscool
