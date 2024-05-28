@@ -5,6 +5,7 @@
 
 #include <NTL/GF2E.h>
 #include <NTL/GF2EX.h>
+#include <NTL/matrix.h>
 #include <galois/GaloisField.h>
 
 constexpr uint ALPHA = 2;
@@ -13,7 +14,7 @@ struct ReedSolomon {
   uint Q;
   uint N;
   uint K;
-  uint primPowOffset;
+  uint primRootOffset;
   std::vector<NTL::GF2E> primPow;
 
   NTL::GF2EX genPoly;
@@ -38,3 +39,4 @@ NTL::GF2X intToGF2X(uint x);
 NTL::GF2E intToGF2E(uint x);
 NTL::GF2X vecToGF2X(const std::vector<uint> v);
 uint GF2EtoInt(const NTL::GF2E &x);
+void reduce(NTL::Mat<NTL::GF2E> &A, int rows);

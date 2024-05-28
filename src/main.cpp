@@ -66,7 +66,7 @@ int main() {
             << " nanoseconds:" << std::endl;
 
   if (resPGZ) {
-    std::cout << "r with " << errsPGZ << " errors corrected: " << std::endl;
+    std::cout << "r with " << errsPGZ << " error(s) corrected: " << std::endl;
     for (uint i = 0; i <= NTL::deg(*resPGZ); ++i)
       std::cout << GF2EtoInt(NTL::coeff(*resPGZ, i)) << ' ';
     std::cout << std::endl;

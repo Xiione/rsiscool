@@ -10,8 +10,8 @@
 
 #include "ReedSolomon.hpp"
 
-ReedSolomon::ReedSolomon(uint Q, uint K, uint primPowOffset)
-    : Q(Q), N(Q - 1), K(K), primPowOffset(primPowOffset) {
+ReedSolomon::ReedSolomon(uint Q, uint K, uint offset)
+    : Q(Q), N(Q - 1), K(K), primRootOffset(offset) {
 
   // deduce extension field power
   assert(Q == 1 << (int)log2(Q));
@@ -31,7 +31,7 @@ ReedSolomon::ReedSolomon(uint Q, uint K, uint primPowOffset)
   NTL::Vec<NTL::GF2E> roots;
   roots.SetLength(genDeg);
   for (size_t i = 0; i < genDeg; ++i) {
-    roots[i] = primPow[primPowOffset + i];
+    roots[i] = primPow[offset + i];
   }
 
   genPoly = NTL::BuildFromRoots(roots);
@@ -57,28 +57,24 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
   // maximum correctable errors
   unsigned t = (N - K + 1) / 2;
   NTL::Mat<NTL::GF2E> M;
-  M.SetDims(t, t);
 
-  // initialize M with syndromes, equation (5.7) from Martini's paper
-  // optimize maybe
   NTL::Vec<NTL::GF2E> syndromes;
   syndromes.SetLength(N - K);
+
+  bool allZero = true;
   for (uint i = 0; i < N - K; ++i) {
-    syndromes[i] = NTL::eval(r, primPow[i + primPowOffset]);
+    syndromes[i] = NTL::eval(r, primPow[i + primRootOffset]);
+    allZero = allZero && NTL::IsZero(syndromes[i]);
   }
 
-  for (uint i = 0; i < t; ++i) {
-    for (uint j = 0; j < t; ++j) {
-      M[i][j] = syndromes[i + j];
-    }
+  // no nonzero syndromes, r is valid
+  if (allZero) {
+    if (resErrs != nullptr)
+      *resErrs = 0;
+    return r;
   }
 
   NTL::Vec<NTL::GF2E> s;
-  s.SetLength(t);
-
-  for (uint i = 0; i < t; ++i) {
-    s[i] = syndromes[t + i];
-  }
 
   for (uint v = t; v > 0; --v) {
     NTL::Vec<NTL::GF2E> l;
@@ -86,6 +82,20 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
     M.SetDims(v, v);
     s.SetLength(v);
     l.SetLength(v);
+
+    // initialize M with syndromes, equation (5.7) from Martini's paper
+    // optimize maybe
+    // NTL does NOT copy the old elements when doing a resize w different
+    // column ct
+    for (uint i = 0; i < v; ++i) {
+      for (uint j = 0; j < v; ++j) {
+        M[i][j] = syndromes[i + j];
+      }
+    }
+
+    for (uint i = 0; i < v; ++i) {
+      s[i] = syndromes[v + i];
+    }
 
     // coefficients of locator polynomial
     NTL::GF2E det;
@@ -101,24 +111,52 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
 
     // solve for error values using syndromes and newly found error locs
     // hijack mat and vec variables cuz we're done with them
-    M.SetDims(v, v);
+    M.SetDims(N - K, v + 1);
     l.SetLength(v);
-    syndromes.SetLength(v);
 
+    // initialize main M
     for (uint i = 0; i < v; ++i) {
-      M[0][i] = primPow[locs[i]];
+      // IMPORTANT: syndrome 0 is defined wrt the used offset!!
+      M[0][i] = NTL::power(primPow[locs[i]], primRootOffset);
     }
-    for (uint i = 1; i < v; ++i) {
+    for (uint i = 1; i < N - K; ++i) {
       for (uint j = 0; j < v; ++j) {
-        M[i][j] = M[i - 1][j] * M[0][j];
+        // nasty nasty
+        M[i][j] = M[i - 1][j] * primPow[locs[j]];
       }
     }
 
-    NTL::solve(det, M, l, syndromes);
-    assert(!NTL::IsZero(det));
+    // initialize augmented matrix column with syndromes
+    for (uint i = 0; i < N - K; ++i) {
+      M[i][v] = syndromes[i];
+    }
+
+    // reduce system
+    NTL::gauss(M, v);
+    for (uint i = 0; i < v; ++i) 
+      assert(NTL::IsZero(M[v][i]));
+    reduce(M, v);
+
+    // move syndromes back after row operations from gaussian elimination
+    // syndromes.SetLength(v);
+    // for (uint i = 0; i < v; ++i) {
+    //   syndromes[i] = M[i][v];
+    // }
+
+    // NTL::Mat<NTL::GF2E> X(NTL::INIT_SIZE, v, v);
+    // copy contents over for solving
+    // for (uint i = 0; i < v; ++i) {
+    //   for (uint j = 0; j < v; ++j) {
+    //     X[i][j] = M[i][j];
+    //   }
+    // }
+
+    // NTL::solve(det, X, l, syndromes);
+    // assert(!NTL::IsZero(det));
 
     for (uint i = 0; i < v; ++i) {
-      NTL::SetCoeff(r, locs[i], NTL::coeff(r, locs[i]) - l[i]);
+      NTL::SetCoeff(r, locs[i], NTL::coeff(r, locs[i]) - M[i][v]);
+      // NTL::SetCoeff(r, locs[i], NTL::coeff(r, locs[i]) - l[i]);
     }
 
     if (resErrs != nullptr)
@@ -183,4 +221,16 @@ uint GF2EtoInt(const NTL::GF2E &x) {
       res |= 1 << i;
   }
   return res;
+}
+
+void reduce(NTL::Mat<NTL::GF2E> &A, int rows) {
+  for (int i = rows - 1; i >= 0; --i) {
+    A[i] *= NTL::inv(A[i][i]);
+
+    for (int j = 0; j < i; ++j) {
+      A[j] -= A[j][i] * A[i];
+    }
+  }
+
+
 }
