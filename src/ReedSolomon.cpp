@@ -1,6 +1,7 @@
 #include <cassert>
 #include <numeric>
 #include <optional>
+#include <unordered_set>
 #include <vector>
 
 #include <NTL/GF2E.h>
@@ -53,7 +54,7 @@ NTL::GF2EX ReedSolomon::encode(std::vector<NTL::GF2E> &u) {
 }
 
 std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
-                                                 uint *const resErrs) {
+                                                 int *const resErrs) {
   // maximum correctable errors
   unsigned t = (N - K + 1) / 2;
   NTL::Mat<NTL::GF2E> M;
@@ -67,7 +68,7 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
     allZero = allZero && NTL::IsZero(syndromes[i]);
   }
 
-  // no nonzero syndromes, r is valid
+  // no nonzero syndromes, r is a valid code
   if (allZero) {
     if (resErrs != nullptr)
       *resErrs = 0;
@@ -107,7 +108,11 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
 
     l.SetLength(l.length() + 1);
     l[l.length() - 1] = NTL::GF2E(1);
-    std::vector<uint> locs = findRoots(l);
+    std::vector<uint> locs = findRootPows(l);
+
+    // failure, couldn't find correct number of error locations
+    if (locs.size() < v)
+      continue;
 
     // solve for error values using syndromes and newly found error locs
     // hijack mat and vec variables cuz we're done with them
@@ -133,8 +138,9 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
 
     // reduce system
     NTL::gauss(M, v);
-    for (uint i = 0; i < v; ++i) 
-      assert(NTL::IsZero(M[v][i]));
+    if (!checkSystem(M, v))
+      continue;
+
     reduce(M, v);
 
     // move syndromes back after row operations from gaussian elimination
@@ -155,6 +161,7 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
     // assert(!NTL::IsZero(det));
 
     for (uint i = 0; i < v; ++i) {
+      // final values of added column are exactly the error values
       NTL::SetCoeff(r, locs[i], NTL::coeff(r, locs[i]) - M[i][v]);
       // NTL::SetCoeff(r, locs[i], NTL::coeff(r, locs[i]) - l[i]);
     }
@@ -164,26 +171,29 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX r,
     return r;
   }
 
+  // indeterminate number of errors > t, cannot correct
+  if (resErrs != nullptr)
+    *resErrs = -1;
   return std::nullopt;
 }
 
 std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX r,
-                                                uint *const resErrs) {
+                                                int *const resErrs) {
   return std::nullopt;
 }
 
-std::vector<uint> ReedSolomon::findRoots(NTL::Vec<NTL::GF2E> v) {
-  std::vector<uint> res;
+std::vector<uint> ReedSolomon::findRootPows(NTL::Vec<NTL::GF2E> v) {
+  std::unordered_set<uint> s;
   for (uint i = 0; i < N; ++i) {
     if (NTL::IsZero(std::accumulate(v.begin(), v.end(), NTL::GF2E(0)))) {
-      res.push_back(i);
+      s.insert(i);
     }
 
     for (uint j = 0; j < v.length(); ++j) {
       v[j] *= primPow[j];
     }
   }
-  return res;
+  return std::vector<uint>(s.begin(), s.end());
 }
 
 NTL::GF2X intToGF2X(uint x) {
@@ -231,6 +241,21 @@ void reduce(NTL::Mat<NTL::GF2E> &A, int rows) {
       A[j] -= A[j][i] * A[i];
     }
   }
+}
 
-
+bool checkSystem(NTL::Mat<NTL::GF2E> &A, int rank) {
+  // check that each equation is consistent
+  for (int i = 0; i < A.NumRows(); ++i) {
+    bool allZeroCoeffs = true;
+    for (int j = 0; j < rank; ++j) {
+      allZeroCoeffs = allZeroCoeffs && NTL::IsZero(A[i][j]);
+    }
+    // system was not reduced properly, NTL::gauss or my reduce's fault?
+    if (i >= rank && !(allZeroCoeffs && NTL::IsZero(A[i][rank])))
+      return false;
+    // all zero coeffs but right side is nonzero -> inconsistent
+    if (allZeroCoeffs && !NTL::IsZero(A[i][rank]))
+        return false;
+  }
+  return true;
 }

@@ -25,14 +25,14 @@ struct ReedSolomon {
 
   // returns nullopt if at least N - K errors => error cannot be solved for
   std::optional<NTL::GF2EX> decodePGZ(NTL::GF2EX r,
-                                      uint *const resErrs = nullptr);
+                                      int *const resErrs = nullptr);
 
   std::optional<NTL::GF2EX> decodeBM(NTL::GF2EX r,
-                                     uint *const resErrs = nullptr);
+                                     int *const resErrs = nullptr);
 
   // chien search from wikipedia
   // give coefficients with index 0 as coefficient of x^0 term
-  std::vector<uint> findRoots(NTL::Vec<NTL::GF2E> v);
+  std::vector<uint> findRootPows(NTL::Vec<NTL::GF2E> v);
 };
 
 NTL::GF2X intToGF2X(uint x);
@@ -40,3 +40,5 @@ NTL::GF2E intToGF2E(uint x);
 NTL::GF2X vecToGF2X(const std::vector<uint> v);
 uint GF2EtoInt(const NTL::GF2E &x);
 void reduce(NTL::Mat<NTL::GF2E> &A, int rows);
+// check if augmented matrix representing a system is independent and consistent
+bool checkSystem(NTL::Mat<NTL::GF2E> &A, int rank);
