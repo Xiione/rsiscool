@@ -20,7 +20,7 @@ int main() {
   std::cout << "Using primitive polynomial: " << primPoly << std::endl;
   NTL::GF2E::init(primPoly);
 
-  ReedSolomon rs(8, 3, 1);
+  ReedSolomon rs(8, 3, 0);
 
   std::cout << "Enter u:" << std::endl;
 
@@ -52,7 +52,7 @@ int main() {
     std::cout << GF2EtoInt(NTL::coeff(r, i)) << ' ';
   std::cout << std::endl;
 
-  uint errsPGZ, errsBM;
+  int errsPGZ, errsBM;
   auto start = std::chrono::high_resolution_clock::now();
   auto resPGZ = rs.decodePGZ(r, &errsPGZ);
   auto between = std::chrono::high_resolution_clock::now();
@@ -78,7 +78,7 @@ int main() {
                    .count()
             << " nanoseconds:" << std::endl;
   if (resBM) {
-    std::cout << "r with " << errsBM << " errors corrected: " << std::endl;
+    std::cout << "r with " << errsBM << " error(s) corrected: " << std::endl;
     for (uint i = 0; i <= NTL::deg(*resBM); ++i)
       std::cout << GF2EtoInt(NTL::coeff(*resBM, i)) << ' ';
     std::cout << std::endl;
