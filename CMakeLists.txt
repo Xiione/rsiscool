@@ -10,8 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 
 # libraries
-add_subdirectory(deps/galois)
-
 set(BREW_PATH /opt/homebrew/Cellar)
 
 # set(GMP_VERSION 6.3.0)
@@ -39,7 +37,7 @@ find_library(
 set(APP_SRC src/main.cpp src/ReedSolomon.cpp)
 add_executable(qriscool ${APP_SRC})
 
-target_link_libraries(qriscool PRIVATE galois ${NTL_LIB})
+target_link_libraries(qriscool PRIVATE ${NTL_LIB})
 target_include_directories(
   qriscool SYSTEM PRIVATE ${NTL_PATH}/include)
 
