@@ -8,7 +8,6 @@
 #include <NTL/GF2E.h>
 #include <NTL/GF2EX.h>
 #include <NTL/mat_GF2E.h>
-#include <galois/GaloisFieldElement.h>
 
 #include "ReedSolomon.hpp"
 

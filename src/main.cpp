@@ -3,16 +3,11 @@
 
 #include <NTL/GF2E.h>
 #include <NTL/GF2EX.h>
-#include <galois/GaloisFieldElement.h>
 
 #include "ReedSolomon.hpp"
 
 int main() {
   std::vector<uint> p = {1, 1, 0, 1};
-  galois::GaloisField gf(3, p.data());
-  galois::GaloisFieldElement el(&gf, 2);
-  auto elp = el ^ 0;
-  auto elp2 = el ^ 1;
 
   const std::vector<uint> symbolPrimPoly = {1, 1, 0, 1};
   NTL::GF2X primPoly = vecToGF2X(symbolPrimPoly);

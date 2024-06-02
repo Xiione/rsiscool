@@ -6,7 +6,6 @@
 #include <NTL/GF2E.h>
 #include <NTL/GF2EX.h>
 #include <NTL/matrix.h>
-#include <galois/GaloisField.h>
 
 constexpr uint ALPHA = 2;
 
