@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <iostream>
 #include <vector>
 
@@ -20,7 +19,7 @@ int main() {
   std::cout << "Using primitive polynomial: " << primPoly << std::endl;
   NTL::GF2E::init(primPoly);
 
-  ReedSolomon rs(8, 3, 0);
+  ReedSolomon rs(8, 3, 2);
 
   std::cout << "Enter u:" << std::endl;
 

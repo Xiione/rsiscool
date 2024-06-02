@@ -298,7 +298,7 @@ ReedSolomon::solveErrorValsForney(const NTL::GF2EX &locator,
 
     // Gill, John EE387, source from wikipedia. for non-1 offsets the first
     // term is necessary
-    vals.push_back(NTL::power(loc, 1 - primRootOffset) * NTL::eval(O, locInv) /
+    vals.push_back(NTL::power(loc, 1 - (int)primRootOffset) * NTL::eval(O, locInv) /
                    NTL::eval(locatorDiff, locInv));
   }
 
