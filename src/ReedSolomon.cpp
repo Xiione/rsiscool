@@ -188,8 +188,8 @@ std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX rec,
       continue;
     }
 
-    NTL::GF2EX locTmp = loc_r -
-            ((delta_r * NTL::inv(delta_m)) * (NTL::LeftShift(loc_m, r - m)));
+    NTL::GF2EX locTmp = loc_r - ((delta_r * NTL::inv(delta_m)) *
+                                 (NTL::LeftShift(loc_m, r - m)));
     int lenTmp = std::max(len_r, len_m + r - m);
 
     // new maximum m - l_m prev solution
@@ -293,8 +293,13 @@ ReedSolomon::solveErrorValsForney(const NTL::GF2EX &locator,
 
   std::vector<NTL::GF2E> vals;
   for (uint i = 0; i < locs.size(); ++i) {
-    NTL::GF2E locInv = NTL::inv(primPow[locs[i]]);
-    vals.push_back(NTL::eval(O, locInv) / NTL::eval(locatorDiff, locInv));
+    NTL::GF2E loc = primPow[locs[i]];
+    NTL::GF2E locInv = NTL::inv(loc);
+
+    // Gill, John EE387, source from wikipedia. for non-1 offsets the first
+    // term is necessary
+    vals.push_back(NTL::power(loc, 1 - primRootOffset) * NTL::eval(O, locInv) /
+                   NTL::eval(locatorDiff, locInv));
   }
 
   return vals;
