@@ -2,8 +2,10 @@
 
 # TYPE = release
 TYPE = debug
+EXECUTABLE = ./build/debug/qriscool
 
-install:
+
+# install:
  	# pre-install:
 	# brew install parkerdiamond/gf2x/gf2x
 	# brew install ntl
@@ -15,4 +17,4 @@ build:
 	cp build/$(TYPE)/compile_commands.json .
 
 run:
-	./build/$(TYPE)/qriscool
+	$(EXECUTABLE)

@@ -50,7 +50,6 @@ ReedSolomon::ReedSolomon(uint Q, uint K, uint offset)
   NTL::GF2EX primMinPoly;
 
   NTL::GF2E a = intToGF2E(ALPHA), x(1);
-  assert(NTL::IsOne(x) != 0);
   for (uint i = 0; i < N; ++i) {
     primPow.push_back(x);
     x *= a;
