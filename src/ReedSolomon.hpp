@@ -7,18 +7,17 @@
 #include <NTL/GF2EX.h>
 #include <NTL/matrix.h>
 
-constexpr uint ALPHA = 2;
+constexpr int ALPHA = 2;
+const std::vector<int> SYMBOL_PRIMPOLY = {1, 0, 1, 1, 1, 0, 0, 0, 1};
 
 struct ReedSolomon {
-  uint Q;
-  uint N;
-  uint K;
-  uint primRootOffset;
-  std::vector<NTL::GF2E> primPow;
+  int N;
+  int K;
+  int primRootOffset;
 
   NTL::GF2EX genPoly;
 
-  ReedSolomon(uint Q, uint K, uint primPowOffset = 0);
+  ReedSolomon(int N, int K, int primPowOffset = 0);
 
   NTL::GF2EX encode(std::vector<NTL::GF2E> &input);
 
@@ -33,19 +32,14 @@ struct ReedSolomon {
 
   // chien search from wikipedia
   // give coefficients with index 0 as coefficient of x^0 term
-  std::vector<uint> findRootPows(NTL::Vec<NTL::GF2E> coeffs);
+  std::vector<int> findRootPows(NTL::Vec<NTL::GF2E> coeffs);
 
   std::optional<std::vector<NTL::GF2E>>
   solveErrorVals(const std::vector<NTL::GF2E> &syndromes,
-                 const std::vector<uint> &errorLocs);
+                 const std::vector<int> &errorLocs);
 
   std::optional<std::vector<NTL::GF2E>>
   solveErrorValsForney(const NTL::GF2EX &locator,
                        const std::vector<NTL::GF2E> &syndromes,
-                       const std::vector<uint> &errorLocs);
+                       const std::vector<int> &errorLocs);
 };
-
-NTL::GF2X intToGF2X(uint x);
-NTL::GF2E intToGF2E(uint x);
-NTL::GF2X vecToGF2X(const std::vector<uint> v);
-uint GF2EtoInt(const NTL::GF2E &x);
