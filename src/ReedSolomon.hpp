@@ -43,3 +43,7 @@ struct ReedSolomon {
                        const std::vector<NTL::GF2E> &syndromes,
                        const std::vector<int> &errorLocs);
 };
+
+void initGF2E();
+std::optional<std::vector<uint8_t>>
+decodeBytes(const std::vector<uint8_t> &bytes, int twoS);

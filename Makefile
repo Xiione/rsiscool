@@ -1,9 +1,15 @@
-# install:
+.PHONY: build
 
+EXECUTABLE = build/rsiscool-test
 
 build:
-	emcmake cmake . -B dist
-	emmake make -C dist
+	cd build && emcmake cmake ..
+	cmake --build build --target rsiscool
 
-	# cmake --build build/$(TYPE) --target rsiscool
-	cp dist/compile_commands.json .
+	cd test && cmake ..
+	cmake --build test --target rsiscool-tests
+
+	cp test/compile_commands.json .
+
+run:
+	$(EXECUTABLE)
