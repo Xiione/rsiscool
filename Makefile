@@ -1,12 +1,21 @@
 .PHONY: build
 
-EXECUTABLE = build/rsiscool-test
+EXECUTABLE = test/rsiscool-tests
 
-build:
+all:
+	mkdir -p build/
 	cd build && emcmake cmake ..
 	cmake --build build --target rsiscool
 
-	cd test && cmake ..
+	mkdir -p test/
+	cd test && cmake .. -DCMAKE_TOOLCHAIN_FILE=clang.cmake
+	cmake --build test --target rsiscool-tests
+
+	cp test/compile_commands.json .
+
+build:
+	mkdir -p test/
+	cd test && cmake .. -DCMAKE_TOOLCHAIN_FILE=clang.cmake
 	cmake --build test --target rsiscool-tests
 
 	cp test/compile_commands.json .

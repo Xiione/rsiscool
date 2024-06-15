@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 #include <emscripten/bind.h>
 #include "ReedSolomon.hpp"
@@ -20,11 +21,15 @@ emscripten::val decodeWASM(emscripten::val bytes, int twoS) {
           .new_(memory, reinterpret_cast<uintptr_t>(v.data()), length);
   inMemView.call<void>("set", bytes);
 
+
+  std::reverse(v.begin(), v.end());
   auto res = decodeBytes(v, twoS);
 
   if (!res) {
     return emscripten::val::null();
   }
+
+  std::reverse(res->begin(), res->end());
 
   emscripten::val arr =
       emscripten::val::global("Uint8ClampedArray").new_(res->size());
