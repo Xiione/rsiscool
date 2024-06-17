@@ -4,3 +4,6 @@
 compile_commands.json
 
 .DS_Store
+
+rsiscool.js
+rsiscool.wasm

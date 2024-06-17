@@ -29,7 +29,7 @@ set_target_properties(
   rsiscool
   PROPERTIES
     LINK_FLAGS
-    "-s ENVIRONMENT=node -s SINGLE_FILE=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s 'EXPORT_NAME=rsiscool' --bind --closure 1"
+    "-s ENVIRONMENT=node -s SINGLE_FILE=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s 'EXPORT_NAME=rsiscool' --bind --closure 1 -flto"
 )
 
 add_executable(rsiscool-tests src/test.cpp ${LIB_SRC})
