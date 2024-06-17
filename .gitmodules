@@ -1,6 +1,0 @@
-[submodule "deps/gf2x"]
-	path = deps/gf2x
-	url = https://gitlab.inria.fr/gf2x/gf2x.git
-[submodule "deps/ntl"]
-	path = deps/ntl
-	url = https://github.com/libntl/ntl.git

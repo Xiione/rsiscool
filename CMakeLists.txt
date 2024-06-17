@@ -12,29 +12,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd
 set(CMAKE_BUILD_TYPE Release)
 set(BUILD_TYPE "library")
 
-# libraries
 set(BREW_CELLAR /opt/homebrew/opt)
-set(BREW_INCLUDE /opt/homebrew/include)
-set(BREW_LIB /opt/homebrew/lib)
-
-set(DOCTEST_PATH ${BREW_CELLAR}/doctest)
 set(EMSCRIPTEN_PATH ${BREW_CELLAR}/emscripten)
 
 # app
 set(LIB_SRC src/ReedSolomon.cpp)
+add_subdirectory(deps/galois)
 
-include(srcs.cmake)
 
-add_executable(rsiscool src/wasm.cpp ${LIB_SRC} ${NTL_SRC} ${GF2X_SRC})
-target_include_directories(
-  rsiscool
-  SYSTEM
-  PRIVATE
-  deps/ntl/include
-  deps/gf2x
-  deps/gf2x/fft
-  ${EMSCRIPTEN_PATH}/libexec/system/include)
+add_executable(rsiscool src/wasm.cpp ${LIB_SRC})
 
+include_directories(${EMSCRIPTEN_PATH}/libexec/system/include)
+target_link_libraries(rsiscool PRIVATE galois)
 target_compile_options(rsiscool PRIVATE -O3)
 set_target_properties(
   rsiscool
@@ -43,19 +32,19 @@ set_target_properties(
     "-s ENVIRONMENT=node -s SINGLE_FILE=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s 'EXPORT_NAME=rsiscool' --bind --closure 1"
 )
 
-add_executable(rsiscool-tests src/test.cpp ${LIB_SRC} ${NTL_SRC} ${NTL_SRC_TEST} ${GF2X_SRC})
+add_executable(rsiscool-tests src/test.cpp ${LIB_SRC})
+
+set(DOCTEST_PATH ${BREW_CELLAR}/doctest)
 set(doctest_DIR ${DOCTEST_PATH}/lib/cmake/doctest)
-
 find_package(doctest REQUIRED)
-target_link_libraries(rsiscool-tests PRIVATE doctest::doctest)
-
-# manually edit ntl config.h to disable gmp, cba to add all of gmps source files too
-target_include_directories(
-  rsiscool-tests
-  SYSTEM
-  PRIVATE
-  ${BREW_INCLUDE} ${BREW_INCLUDE}/gf2x ${DOCTEST_PATH}/include)
-
+target_link_libraries(rsiscool-tests PRIVATE galois doctest::doctest)
 target_compile_options(
-  rsiscool-tests PRIVATE -O0 -g -Wall -Wextra -Wshadow -pedantic
-                   -Wno-missing-field-initializers -Wno-deprecated-declarations)
+  rsiscool-tests
+  PRIVATE -O0
+          -g
+          -Wall
+          -Wextra
+          -Wshadow
+          -pedantic
+          -Wno-missing-field-initializers
+          -Wno-deprecated-declarations)

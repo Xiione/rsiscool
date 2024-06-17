@@ -36,6 +36,5 @@ emscripten::val decodeWASM(const emscripten::val &bytes, int twoS) {
 }
 
 EMSCRIPTEN_BINDINGS(rsiscool) {
-  emscripten::function("initGF2E", &initGF2E);
   emscripten::function("decodeWASM", &decodeWASM);
 }

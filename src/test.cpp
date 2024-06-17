@@ -32,7 +32,6 @@ template <class T, size_t SZ> using ARR = array<T, SZ>;
  * Use fold if the big vectors are annoying
  */
 TEST_CASE("jsQR test 104") {
-  initGF2E();
   V<V<uint8_t>> blocks = {
       {32,  2,   226, 0,   1,  178, 176, 183, 16,  2,   205, 136, 0,   36,
        238, 202, 220, 26,  20, 230, 228, 222, 238, 202, 220, 128, 206, 222,
@@ -91,7 +90,7 @@ TEST_CASE("jsQR test 104") {
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
     int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res != -1);
+    REQUIRE(res != -1);
     CHECK(sz(blocks[i]) == sz(expected[i]));
     rep0(j, sz(blocks[i])) {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
@@ -176,7 +175,7 @@ TEST_CASE("jsQR test 96 - location 2") {
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
     int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res != -1);
+    REQUIRE(res != -1);
     CHECK(sz(blocks[i]) == sz(expected[i]));
     rep0(j, sz(blocks[i])) {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
@@ -219,7 +218,49 @@ TEST_CASE("jsQR test 174") {
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
     int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res != -1);
+    REQUIRE(res != -1);
+    CHECK(sz(blocks[i]) == sz(expected[i]));
+    rep0(j, sz(blocks[i])) {
+      DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
+      CHECK(blocks[i][j] == expected[i][j]);
+    }
+  }
+}
+
+TEST_CASE("jsQR test 168") {
+  V<V<uint8_t>> blocks = {
+      {65, 182, 135, 71,  71,  3,   162, 228, 246, 38, 38,
+       84, 45,  139, 44,  249, 69,  231, 95,  125, 4,  207,
+       59, 116, 103, 220, 68,  205, 250, 65,  115, 48, 130},
+      {50,  230, 54,  242, 231, 205, 178, 13, 7,   20,  246,
+       78,  1,   194, 170, 231, 94,  237, 86, 61,  141, 92,
+       133, 150, 140, 36,  102, 25,  165, 41, 179, 85,  49},
+      {119, 38,  22,  214, 214, 200, 48,  84,  17,  147, 17, 236,
+       223, 156, 118, 197, 29,  102, 218, 72,  177, 215, 30, 106,
+       101, 20,  139, 154, 231, 29,  136, 102, 199, 59},
+      {17,  236, 17,  236, 17,  172, 17,  236, 17, 108, 17,  236,
+       23,  115, 4,   245, 202, 66,  245, 235, 85, 88,  174, 114,
+       229, 108, 118, 209, 44,  232, 213, 243, 27, 215}};
+  V<int> dataSizes = {11, 11, 12, 12};
+
+  V<V<uint8_t>> expected = {
+      {65, 182, 135, 71,  71,  3,   162, 242, 246, 38, 38,
+       72, 45,  139, 44,  249, 125, 231, 7,   125, 30, 207,
+       59, 116, 103, 196, 68,  53,  250, 121, 115, 48, 130},
+      {50,  230, 54,  242, 231, 86,  178, 247, 7,   38,  246,
+       164, 1,   152, 170, 231, 94,  237, 22,  61,  118, 92,
+       139, 150, 140, 36,  102, 121, 165, 41,  179, 85,  49},
+      {119, 38,  22,  214, 214, 87,  48,  236, 17,  236, 17, 236,
+       79,  156, 32,  197, 19,  102, 218, 72,  177, 255, 30, 194,
+       101, 29,  139, 154, 231, 19,  136, 102, 199, 59},
+      {17,  236, 17,  236, 17,  236, 17,  236, 17, 236, 17,  236,
+       23,  115, 68,  245, 125, 66,  203, 235, 85, 88,  174, 178,
+       229, 181, 118, 148, 44,  175, 213, 243, 27, 215}};
+
+  rep0(i, sz(blocks)) {
+    DOCTEST_INFO(format("Block {}", i + 1));
+    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    REQUIRE(res != -1);
     CHECK(sz(blocks[i]) == sz(expected[i]));
     rep0(j, sz(blocks[i])) {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
