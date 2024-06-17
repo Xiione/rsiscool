@@ -24,7 +24,7 @@
 #include <iostream>
 #include <vector>
 #include "GaloisField.h"
-
+#include "GlobalGaloisField.h"
 
 namespace galois
 {
@@ -34,7 +34,7 @@ namespace galois
 
       public:
 
-       GaloisFieldElement(GaloisField* _gf = NULL, GFSymbol v = -1);
+       GaloisFieldElement(GFSymbol v = -1);
        GaloisFieldElement(const GaloisFieldElement& gfe);
       ~GaloisFieldElement(){}
 
@@ -43,7 +43,6 @@ namespace galois
           if (this == &gfe)
             return *this;
 
-          gf          = gfe.gf;
           poly_value  = gfe.poly_value;
 
           return *this;
@@ -52,7 +51,7 @@ namespace galois
 
        inline GaloisFieldElement& operator=(const GFSymbol& v)
        {
-          poly_value  = v & gf->size();
+          poly_value  = v & GF.size();
           return *this;
        }
 
@@ -87,45 +86,42 @@ namespace galois
 
        inline GaloisFieldElement& operator*=(const GaloisFieldElement& gfe)
        {
-          poly_value = gf->mul(poly_value,gfe.poly_value);
+          poly_value = GF.mul(poly_value,gfe.poly_value);
           return *this;
        }
 
 
        inline GaloisFieldElement& operator*=(const GFSymbol& v)
        {
-          poly_value = gf->mul(poly_value,v);
+          poly_value = GF.mul(poly_value,v);
           return *this;
        }
 
 
        inline GaloisFieldElement& operator/=(const GaloisFieldElement& gfe)
        {
-          poly_value = gf->div(poly_value,gfe.poly_value);
+          poly_value = GF.div(poly_value,gfe.poly_value);
           return *this;
        }
 
 
        inline GaloisFieldElement& operator/=(const GFSymbol& v)
        {
-          poly_value = gf->div(poly_value,v);
+          poly_value = GF.div(poly_value,v);
           return *this;
        }
 
 
        inline GaloisFieldElement& operator^=(const int& n)
        {
-          poly_value = gf->exp(poly_value,n);
+          poly_value = GF.exp(poly_value,n);
           return *this;
        }
 
 
        inline bool operator==(const GaloisFieldElement& gfe) const
        {
-          return (
-                  (gf  == gfe.gf) &&
-                  (poly_value == gfe.poly_value)
-                 );
+          return (poly_value == gfe.poly_value);
        }
 
 
@@ -137,10 +133,7 @@ namespace galois
 
        inline bool operator!=(const GaloisFieldElement& gfe) const
        {
-          return (
-                  (gf  != gfe.gf) ||
-                  (poly_value != gfe.poly_value)
-                 );
+          return (poly_value != gfe.poly_value);
        }
 
 
@@ -174,7 +167,7 @@ namespace galois
 
        inline GFSymbol index() const
        {
-          return gf->index(poly_value);
+          return GF.index(poly_value);
        }
 
 
@@ -184,15 +177,9 @@ namespace galois
        }
 
 
-       inline GaloisField* field() const
-       {
-          return gf;
-       }
-
-
        inline GFSymbol inverse() const
        {
-          return gf->inverse(poly_value);
+          return GF.inverse(poly_value);
        }
 
 
@@ -200,7 +187,6 @@ namespace galois
 
       private:
 
-       GaloisField* gf;
        GFSymbol     poly_value;
 
    };
@@ -208,10 +194,10 @@ namespace galois
    GaloisFieldElement operator + (const GaloisFieldElement& a, const GaloisFieldElement& b);
    GaloisFieldElement operator - (const GaloisFieldElement& a, const GaloisFieldElement& b);
    GaloisFieldElement operator * (const GaloisFieldElement& a, const GaloisFieldElement& b);
-   GaloisFieldElement operator * (const GaloisFieldElement& a, const GFSymbol& b          );
-   GaloisFieldElement operator * (const GFSymbol& a,           const GaloisFieldElement& b);
+   GaloisFieldElement operator * (const GaloisFieldElement& a, const GFSymbol& b);
+   GaloisFieldElement operator * (const GFSymbol& a, const GaloisFieldElement& b);
    GaloisFieldElement operator / (const GaloisFieldElement& a, const GaloisFieldElement& b);
-   GaloisFieldElement operator ^ (const GaloisFieldElement& a, const int& b               );
+   GaloisFieldElement operator ^ (const GaloisFieldElement& a, const int& b);
 
 }
 

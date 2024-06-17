@@ -26,7 +26,7 @@
 #include <assert.h>
 #include "GaloisField.h"
 #include "GaloisFieldElement.h"
-
+#include "GlobalGaloisField.h"
 
 namespace galois
 {
@@ -36,15 +36,14 @@ namespace galois
 
       public:
 
-       GaloisFieldPolynomial(GaloisField* _gf);
-       GaloisFieldPolynomial(GaloisField* _gf = NULL, const unsigned int size = 0, GaloisFieldElement* gfe = NULL);
+       GaloisFieldPolynomial();
+       GaloisFieldPolynomial(const unsigned int size, GaloisFieldElement* gfe = NULL);
        GaloisFieldPolynomial(const GaloisFieldPolynomial& polynomial);
        GaloisFieldPolynomial(const GaloisFieldElement& gfe);
       ~GaloisFieldPolynomial(){};
 
        bool valid() const;
        unsigned int deg() const;
-       GaloisField* field() const;
        void set_degree(const unsigned int& x);
        void simplify();
 
@@ -83,7 +82,6 @@ namespace galois
 
        void simplify(GaloisFieldPolynomial& polynomial);
 
-       GaloisField* gf;
        std::vector< GaloisFieldElement > poly;
    };
 
@@ -113,3 +111,4 @@ namespace galois
 
 
 #endif
+

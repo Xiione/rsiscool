@@ -3,16 +3,14 @@
 namespace galois
 {
 
-   GaloisFieldPolynomial::GaloisFieldPolynomial(GaloisField* _gf)
+   GaloisFieldPolynomial::GaloisFieldPolynomial()
    {
-      gf = _gf;
       poly.clear();
    }
 
 
-   GaloisFieldPolynomial::GaloisFieldPolynomial(GaloisField* _gf, const unsigned int size, GaloisFieldElement* gfe)
+   GaloisFieldPolynomial::GaloisFieldPolynomial(const unsigned int size, GaloisFieldElement* gfe)
    {
-      gf = _gf;
       poly.resize(size + 1);
 
       if (gfe != NULL)
@@ -26,7 +24,7 @@ namespace galois
       {
          for(unsigned int i = 0; i < poly.size(); i++)
          {
-            poly[i] = GaloisFieldElement(gf,0);
+            poly[i] = GaloisFieldElement(0);
          }
       }
    }
@@ -34,14 +32,12 @@ namespace galois
 
    GaloisFieldPolynomial::GaloisFieldPolynomial(const GaloisFieldPolynomial& polynomial)
    {
-      gf   = polynomial.gf;
       poly = polynomial.poly;
    }
 
 
    GaloisFieldPolynomial::GaloisFieldPolynomial(const GaloisFieldElement& gfe)
    {
-      gf = gfe.field();
       poly.clear();
       poly.push_back(gfe);
    }
@@ -59,15 +55,9 @@ namespace galois
    }
 
 
-   GaloisField* GaloisFieldPolynomial::field() const
-   {
-      return gf;
-   }
-
-
    void GaloisFieldPolynomial::set_degree(const unsigned int& x)
    {
-      poly.resize(x - 1,GaloisFieldElement(gf,0));
+      poly.resize(x - 1,GaloisFieldElement(0));
    }
 
 
@@ -76,7 +66,6 @@ namespace galois
       if (this == &polynomial)
         return *this;
 
-      gf   = polynomial.gf;
       poly = polynomial.poly;
 
       return *this;
@@ -86,7 +75,6 @@ namespace galois
    GaloisFieldPolynomial& GaloisFieldPolynomial::operator=(const GaloisFieldElement& gfe)
    {
       poly.clear();
-      gf = gfe.field();
       poly.push_back(gfe);
       return *this;
    }
@@ -94,8 +82,6 @@ namespace galois
 
    GaloisFieldPolynomial& GaloisFieldPolynomial::operator+=(const GaloisFieldPolynomial& polynomial)
    {
-      if (gf == polynomial.gf)
-      {
          if (poly.size() < polynomial.poly.size())
          {
             unsigned int j = 0;
@@ -119,7 +105,6 @@ namespace galois
          }
 
          simplify(*this);
-      }
 
       return *this;
    }
@@ -147,9 +132,7 @@ namespace galois
 
    GaloisFieldPolynomial& GaloisFieldPolynomial::operator*=(const GaloisFieldPolynomial& polynomial)
    {
-      if (gf == polynomial.gf)
-      {
-         GaloisFieldPolynomial product(gf,deg() + polynomial.deg() + 1);
+         GaloisFieldPolynomial product(deg() + polynomial.deg() + 1);
 
          for (unsigned int  i= 0; i < poly.size(); i++)
          {
@@ -161,20 +144,16 @@ namespace galois
 
          simplify(product);
          poly = product.poly;
-      }
       return *this;
    }
 
 
    GaloisFieldPolynomial& GaloisFieldPolynomial::operator*=(const GaloisFieldElement& gfe)
    {
-      if (gf == gfe.field())
-      {
          for(unsigned int i = 0; i < poly.size(); i++)
          {
             poly[i] *= gfe;
          }
-      }
       return *this;
    }
 
@@ -182,13 +161,12 @@ namespace galois
    GaloisFieldPolynomial& GaloisFieldPolynomial::operator/=(const GaloisFieldPolynomial& divisor)
    {
       if (
-          (gf            ==    divisor.gf) &&
           (deg()         >= divisor.deg()) &&
           (divisor.deg() >=             0)
          )
       {
-         GaloisFieldPolynomial  quotient(gf, deg() - divisor.deg() + 1);
-         GaloisFieldPolynomial remainder(gf, divisor.deg() - 1);
+         GaloisFieldPolynomial  quotient(deg() - divisor.deg() + 1);
+         GaloisFieldPolynomial remainder(divisor.deg() - 1);
 
          for(int i = deg(); i >= 0; i--)
          {
@@ -224,13 +202,10 @@ namespace galois
 
    GaloisFieldPolynomial& GaloisFieldPolynomial::operator/=(const GaloisFieldElement& gfe)
    {
-      if (gf == gfe.field())
-      {
          for (unsigned int i = 0;  i < poly.size(); i++)
          {
             poly[i] /= gfe;
          }
-      }
       return *this;
    }
 
@@ -238,13 +213,12 @@ namespace galois
    GaloisFieldPolynomial& GaloisFieldPolynomial::operator%=(const GaloisFieldPolynomial& divisor)
    {
       if (
-          (gf            ==    divisor.gf) &&
           (deg()         >= divisor.deg()) &&
           (divisor.deg() >=             0)
          )
       {
-         GaloisFieldPolynomial  quotient(gf, deg() - divisor.deg() + 1);
-         GaloisFieldPolynomial remainder(gf, divisor.deg() - 1);
+         GaloisFieldPolynomial  quotient(deg() - divisor.deg() + 1);
+         GaloisFieldPolynomial remainder(divisor.deg() - 1);
 
          for(int i = deg(); i >= 0; i--)
          {
@@ -306,7 +280,7 @@ namespace galois
       if (poly.size() > 0)
       {
          std::size_t initial_size = poly.size();
-         poly.resize(poly.size() + n, GaloisFieldElement(gf,0));
+         poly.resize(poly.size() + n, GaloisFieldElement(0));
 
          for(std::size_t i = initial_size - 1; static_cast<int>(i) >= 0; i--)
          {
@@ -331,11 +305,11 @@ namespace galois
             poly[i] = poly[i + n];
          }
 
-         poly.resize(poly.size() - n,GaloisFieldElement(gf,0));
+         poly.resize(poly.size() - n,GaloisFieldElement(0));
       }
       else if (n >= deg() + 1)
       {
-         poly.resize(0,GaloisFieldElement(gf,0));
+         poly.resize(0,GaloisFieldElement(0));
       }
       return *this;
    }
@@ -357,7 +331,7 @@ namespace galois
 
    GaloisFieldElement GaloisFieldPolynomial::operator()(const GaloisFieldElement& value)
    {
-      GaloisFieldElement result(gf,0);
+      GaloisFieldElement result(0);
 
       if (poly.size() > 0)
       {
@@ -373,7 +347,7 @@ namespace galois
 
    const GaloisFieldElement GaloisFieldPolynomial::operator()(const GaloisFieldElement& value) const
    {
-      GaloisFieldElement result(gf,0);
+      GaloisFieldElement result(0);
 
       if (poly.size() > 0)
       {
@@ -389,20 +363,18 @@ namespace galois
 
    GaloisFieldElement GaloisFieldPolynomial::operator()(GFSymbol value)
    {
-      return (*this)(GaloisFieldElement(gf,value));
+      return (*this)(GaloisFieldElement(value));
    }
 
 
    const GaloisFieldElement GaloisFieldPolynomial::operator()(GFSymbol value) const
    {
-      return (*this)(GaloisFieldElement(gf,value));
+      return (*this)(GaloisFieldElement(value));
    }
 
 
    bool GaloisFieldPolynomial::operator==(const GaloisFieldPolynomial& polynomial) const
    {
-      if (gf == polynomial.gf)
-      {
          if (poly.size() != polynomial.poly.size())
            return false;
          else
@@ -414,9 +386,6 @@ namespace galois
             }
             return true;
          }
-      }
-      else
-        return false;
    }
 
 
@@ -430,7 +399,7 @@ namespace galois
    {
       if ((*this).poly.size() > 1)
       {
-         GaloisFieldPolynomial deriv(gf,deg());
+         GaloisFieldPolynomial deriv(deg());
          for (unsigned int i = 0; i < poly.size() - 1; i++)
          {
             if (((i + 1) & 1) == 1)
@@ -441,7 +410,7 @@ namespace galois
          simplify(deriv);
          return deriv;
       }
-      return GaloisFieldPolynomial(gf,0);
+      return GaloisFieldPolynomial(0);
    }
 
 
@@ -496,13 +465,13 @@ namespace galois
 
    GaloisFieldPolynomial operator + (const GaloisFieldPolynomial& a, const GFSymbol& b)
    {
-      return a + GaloisFieldElement(a.field(),b);
+      return a + GaloisFieldElement(b);
    }
 
 
    GaloisFieldPolynomial operator + (const GFSymbol& a, const GaloisFieldPolynomial& b)
    {
-      return b + GaloisFieldElement(b.field(),a);
+      return b + GaloisFieldElement(a);
    }
 
 
@@ -531,13 +500,13 @@ namespace galois
 
    GaloisFieldPolynomial operator - (const GaloisFieldPolynomial& a, const GFSymbol& b)
    {
-      return a - GaloisFieldElement(a.field(),b);
+      return a - GaloisFieldElement(b);
    }
 
 
    GaloisFieldPolynomial operator - (const GFSymbol& a, const GaloisFieldPolynomial& b)
    {
-      return b - GaloisFieldElement(b.field(),a);
+      return b - GaloisFieldElement(a);
    }
 
 
@@ -620,8 +589,6 @@ namespace galois
 
    GaloisFieldPolynomial gcd(const GaloisFieldPolynomial& a, const GaloisFieldPolynomial& b)
    {
-      if ((*a.field()) == (*b.field()))
-      {
          if ((!a.valid()) && (!b.valid())) return GaloisFieldPolynomial();
          if (!a.valid()) return b;
          if (!b.valid()) return a;
@@ -636,9 +603,6 @@ namespace galois
             x = z;
          }
          return x;
-      }
-      else
-        return GaloisFieldPolynomial();
    }
 
 

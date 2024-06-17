@@ -3,21 +3,13 @@
 namespace galois
 {
 
-   GaloisFieldElement::GaloisFieldElement(GaloisField* _gf, GFSymbol v)
+   GaloisFieldElement::GaloisFieldElement(GFSymbol v)
    {
-      if (_gf != NULL)
-      {
-         gf         = _gf;
-         poly_value = v & gf->size();
-      }
-      else
-        poly_value = v;
+      poly_value = v & GF.size();
    }
-
 
    GaloisFieldElement::GaloisFieldElement(const GaloisFieldElement& gfe)
    {
-      gf          = gfe.gf;
       poly_value  = gfe.poly_value;
    }
 
