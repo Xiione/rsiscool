@@ -90,12 +90,12 @@ TEST_CASE("jsQR test 104") {
 
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
-    auto res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res != nullopt);
-    CHECK(sz(blocks[i]) == res->size());
+    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    CHECK(res != -1);
+    CHECK(sz(blocks[i]) == sz(expected[i]));
     rep0(j, sz(blocks[i])) {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
-      CHECK((*res)[j] == expected[i][j]);
+      CHECK(blocks[i][j] == expected[i][j]);
     }
   }
 }
@@ -110,8 +110,8 @@ TEST_CASE("jsQR test 96 - location 1") {
 
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
-    auto res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res == nullopt);
+    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    CHECK(res == -1);
   }
 }
 
@@ -125,8 +125,8 @@ TEST_CASE("jsQR test 96 - location 1 mirrored") {
 
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
-    auto res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res == nullopt);
+    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    CHECK(res == -1);
   }
 }
 
@@ -175,12 +175,12 @@ TEST_CASE("jsQR test 96 - location 2") {
 
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
-    auto res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res != nullopt);
-    CHECK(sz(blocks[i]) == res->size());
+    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    CHECK(res != -1);
+    CHECK(sz(blocks[i]) == sz(expected[i]));
     rep0(j, sz(blocks[i])) {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
-      CHECK((*res)[j] == expected[i][j]);
+      CHECK(blocks[i][j] == expected[i][j]);
     }
   }
 }
@@ -218,12 +218,12 @@ TEST_CASE("jsQR test 174") {
 
   rep0(i, sz(blocks)) {
     DOCTEST_INFO(format("Block {}", i + 1));
-    auto res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res != nullopt);
-    CHECK(sz(blocks[i]) == res->size());
+    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    CHECK(res != -1);
+    CHECK(sz(blocks[i]) == sz(expected[i]));
     rep0(j, sz(blocks[i])) {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
-      CHECK((*res)[j] == expected[i][j]);
+      CHECK(blocks[i][j] == expected[i][j]);
     }
   }
 }

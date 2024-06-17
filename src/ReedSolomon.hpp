@@ -34,7 +34,9 @@ struct ReedSolomon {
 
   // chien search from wikipedia
   // give coefficients with index 0 as coefficient of x^0 term
-  std::vector<int> findRootPows(const NTL::Vec<NTL::GF2E> &coeffs);
+  std::vector<int> findRootPows(NTL::Vec<NTL::GF2E> coeffs);
+  // give polynomial directly
+  std::vector<int> findRootPows(const NTL::GF2EX &loc);
 
   std::optional<std::vector<NTL::GF2E>>
   solveErrorVals(const std::vector<NTL::GF2E> &syndromes,
@@ -47,5 +49,4 @@ struct ReedSolomon {
 };
 
 void initGF2E();
-std::optional<std::vector<uint8_t>>
-decodeBytes(const std::vector<uint8_t> &bytes, int twoS);
+int decodeBytes(std::vector<uint8_t> &bytes, int twoS);

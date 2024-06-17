@@ -89,8 +89,7 @@ void initGF2E() {
   }
 }
 
-std::optional<std::vector<uint8_t>>
-decodeBytes(const std::vector<uint8_t> &bytes, int twoS) {
+int decodeBytes(std::vector<uint8_t> &bytes, int twoS) {
   ReedSolomon rs(bytes.size(), bytes.size() - twoS);
   NTL::GF2EX rec;
   for (int i = 0; i < rs.N; ++i) {
@@ -98,19 +97,16 @@ decodeBytes(const std::vector<uint8_t> &bytes, int twoS) {
     NTL::SetCoeff(rec, i, byteToGF2E(bytes[rs.N - i - 1]));
   }
 
-  int errors;
+  int errors = -2;
   auto res = rs.decodeBM(rec, &errors);
   if (!res)
-    return std::nullopt;
+    return errors;
 
-  std::vector<uint8_t> v;
-  v.resize(rs.N);
   for (int i = 0; i < rs.N; ++i) {
     auto f = NTL::coeff(*res, i)._GF2E__rep.xrep;
-    if (f.rep)
-      v[rs.N - i - 1] = (uint8_t)*f.rep;
+    bytes[rs.N - i - 1] = f.rep ? (uint8_t)*f.rep : 0;
   }
-  return v;
+  return errors;
 }
 
 ReedSolomon::ReedSolomon(int N, int K, int offset)
@@ -280,8 +276,7 @@ std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX rec,
     return std::nullopt;
   }
 
-  std::vector<int> locs =
-      findRootPows(NTL::VectorCopy(NTL::reverse(loc_r), NTL::deg(loc_r) + 1));
+  std::vector<int> locs = findRootPows(loc_r);
 
   auto vals = solveErrorValsForney(loc_r, syndromes, locs);
 
@@ -291,11 +286,14 @@ std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX rec,
     return std::nullopt;
   }
 
-  if (resErrs != nullptr)
-    *resErrs = locs.size();
+  {
+    NTL::GF2EX e;
 
-  for (int i = 0; i < locs.size(); ++i) {
-    NTL::SetCoeff(rec, locs[i], NTL::coeff(rec, locs[i]) - vals.value()[i]);
+    for (int i = 0; i < locs.size(); ++i) {
+      NTL::SetCoeff(e, locs[i], vals.value()[i]);
+    }
+
+    rec -= e;
   }
 
   // final sanity check, are syndromes zero now?
@@ -307,24 +305,39 @@ std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX rec,
     }
   }
 
+  if (resErrs != nullptr)
+    *resErrs = locs.size();
   return rec;
 }
 
-std::vector<int> ReedSolomon::findRootPows(const NTL::Vec<NTL::GF2E> &coeffs) {
-  NTL::Vec<NTL::GF2E> v = coeffs;
-  std::unordered_set<int> s;
+std::vector<int> ReedSolomon::findRootPows(NTL::Vec<NTL::GF2E> v) {
+  std::vector<int> res;
   for (int i = 0; i < N; ++i) {
     if (NTL::IsZero(std::accumulate(v.begin(), v.end(), NTL::GF2E::zero()))) {
-      s.insert(i);
+      res.push_back(i);
     }
 
     for (int j = 0; j < v.length(); ++j) {
       v[j] *= primPow[j];
     }
   }
-  return std::vector<int>(s.begin(), s.end());
+  return res;
 }
 
+std::vector<int> ReedSolomon::findRootPows(const NTL::GF2EX &loc) {
+  NTL::Vec<NTL::GF2E> v = NTL::VectorCopy(NTL::reverse(loc), NTL::deg(loc) + 1);
+  std::vector<int> res;
+  for (int i = 0; i < N; ++i) {
+    if (NTL::IsZero(std::accumulate(v.begin(), v.end(), NTL::GF2E::zero()))) {
+      res.push_back(i);
+    }
+
+    for (int j = 0; j < v.length(); ++j) {
+      v[j] *= primPow[j];
+    }
+  }
+  return res;
+}
 std::optional<std::vector<NTL::GF2E>>
 ReedSolomon::solveErrorVals(const std::vector<NTL::GF2E> &syndromes,
                             const std::vector<int> &errorLocs) {

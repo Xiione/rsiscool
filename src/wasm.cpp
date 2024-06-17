@@ -22,15 +22,15 @@ emscripten::val decodeWASM(const emscripten::val &bytes, int twoS) {
   inMemView.call<void>("set", bytes);
 
 
-  auto res = decodeBytes(v, twoS);
-  if (!res) {
+  int res = decodeBytes(v, twoS);
+  if (res == -1) {
     return emscripten::val::null();
   }
 
   emscripten::val arr =
-      emscripten::val::global("Uint8ClampedArray").new_(res->size());
+      emscripten::val::global("Uint8ClampedArray").new_(v.size());
   arr.call<void>("set", emscripten::val(emscripten::typed_memory_view(
-                            res->size(), res->data())));
+                            v.size(), v.data())));
 
   return arr;
 }
