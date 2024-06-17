@@ -11,6 +11,9 @@
 
 #include "ReedSolomon.hpp"
 
+// #define getRep(x) x._GF2E__rep.xrep.rep
+// #define GF2EtoInt(x) (getRep(x) ? *getRep(x) : 0)
+
 std::vector<NTL::GF2E> primPow;
 
 // random
@@ -19,34 +22,23 @@ inline NTL::GF2X bytetoGF2X(uint8_t x) { return NTL::GF2XFromBytes(&x, 1); }
 inline NTL::GF2E byteToGF2E(uint8_t x) { return NTL::to_GF2E(bytetoGF2X(x)); }
 
 NTL::GF2X vecToGF2X(const std::vector<int> v) {
-  std::vector<uint8_t> res;
   size_t numBytes = (v.size() + 7) / 8;
+  std::vector<uint8_t> res(numBytes, 0);
 
-  for (size_t i = 0; i < numBytes; ++i) {
-    uint8_t byte = 0;
-    for (size_t j = 0; j < 8; ++j) {
-      size_t index = i * 8 + j;
-      if (index < v.size()) {
-        if (v[index] != 0) {
-          byte |= (1 << j);
-        }
-      } else
-        break;
-    }
-    res.push_back(byte);
+  for (size_t i = 0; i < v.size(); ++i) {
+    res[i / 8] |= (v[i] != 0) << (i % 8);
   }
   return NTL::GF2XFromBytes(res.data(), numBytes);
 }
 
-inline uint8_t GF2EtoInt(const NTL::GF2E &x) {
-  NTL::GF2X f = x._GF2E__rep;
-  int res = 0;
-  for (int i = 0; i <= NTL::deg(f); ++i) {
-    if (!NTL::IsZero(NTL::coeff(f, i)))
-      res |= 1 << i;
-  }
-  return res;
-}
+// evil random error where gf2e value changes when passed as an argument
+// we will use a macro instead
+// inline uint8_t GF2EtoInt(const NTL::GF2E &x) {
+//   NTL::GF2X f = x._GF2E__rep;
+//   if (f.xrep.rep)
+//     return *f.xrep.rep;
+//   return 0;
+// }
 
 void reduce(NTL::Mat<NTL::GF2E> &A, int rows) {
   for (int i = rows - 1; i >= 0; --i) {
@@ -77,52 +69,59 @@ bool checkSystem(NTL::Mat<NTL::GF2E> &A, int rank) {
 }
 
 void initGF2E() {
+  static bool initialized = false;
+  if (initialized)
+    return;
+  initialized = true;
+
   NTL::GF2X primPoly = vecToGF2X(SYMBOL_PRIMPOLY);
   std::cerr << "[rsiscool] Using primitive polynomial: " << primPoly
             << std::endl;
   NTL::GF2E::init(primPoly);
+
+  NTL::GF2E a = byteToGF2E(ALPHA);
+  NTL::GF2E x = NTL::GF2E(1);
+
+  primPow.resize(256);
+  for (int i = 0; i < 256; ++i) {
+    primPow[i] = x;
+    x *= a;
+  }
 }
 
 std::optional<std::vector<uint8_t>>
 decodeBytes(const std::vector<uint8_t> &bytes, int twoS) {
   ReedSolomon rs(bytes.size(), bytes.size() - twoS);
   NTL::GF2EX rec;
-  rec.SetLength(rs.N);
-  rec.SetMaxLength(rs.N);
   for (int i = 0; i < rs.N; ++i) {
-    rec[i] = byteToGF2E(bytes[i]);
+    // do reversing here
+    NTL::SetCoeff(rec, i, byteToGF2E(bytes[rs.N - i - 1]));
   }
 
-  int errors = -1;
+  int errors;
   auto res = rs.decodeBM(rec, &errors);
   if (!res)
     return std::nullopt;
 
   std::vector<uint8_t> v;
-  for (NTL::GF2E &x : NTL::VectorCopy(*res, NTL::deg(*res) + 1)) {
-    v.push_back(GF2EtoInt(x));
+  v.resize(rs.N);
+  for (int i = 0; i < rs.N; ++i) {
+    auto f = NTL::coeff(*res, i)._GF2E__rep.xrep;
+    if (f.rep)
+      v[rs.N - i - 1] = (uint8_t)*f.rep;
   }
   return v;
 }
 
 ReedSolomon::ReedSolomon(int N, int K, int offset)
     : N(N), K(K), primRootOffset(offset) {
-
   // deduce extension field power
   // assert(Q == 1 << (int)log2(Q));
 
   // init generator polynomial
+#ifdef RSISCOOL_ENCODE
   int genDeg = N - K;
   NTL::GF2EX primMinPoly;
-
-  NTL::GF2E a = byteToGF2E(ALPHA);
-  NTL::GF2E x =
-      primPow.size() == 0 ? NTL::GF2E(1) : NTL::GF2E(primPow.back() * a);
-  for (int i = primPow.size(); i < N; ++i) {
-    primPow.push_back(x);
-    x *= a;
-  }
-
   // (z - a^i)
   NTL::Vec<NTL::GF2E> roots;
   roots.SetLength(genDeg);
@@ -132,8 +131,10 @@ ReedSolomon::ReedSolomon(int N, int K, int offset)
 
   genPoly = NTL::BuildFromRoots(roots);
   assert(NTL::deg(genPoly) == genDeg);
+#endif
 }
 
+#ifdef RSISCOOL_ENCODE
 NTL::GF2EX ReedSolomon::encode(std::vector<NTL::GF2E> &input) {
   NTL::GF2EX c;
   for (int i = 0; i < input.size(); ++i)
@@ -147,6 +148,7 @@ NTL::GF2EX ReedSolomon::encode(std::vector<NTL::GF2E> &input) {
   c -= c % genPoly;
   return c;
 }
+#endif
 
 std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX rec,
                                                  int *const resErrs) {
@@ -155,12 +157,14 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX rec,
   NTL::Mat<NTL::GF2E> M;
 
   std::vector<NTL::GF2E> syndromes(N - K);
-
   bool allZero = true;
-  for (int i = 0; i < N - K; ++i) {
-    syndromes[i] = NTL::eval(rec, primPow[primRootOffset + i]);
-    allZero = allZero && NTL::IsZero(syndromes[i]);
-  }
+  std::transform(primPow.begin() + primRootOffset,
+                 primPow.begin() + primRootOffset + (N - K), syndromes.begin(),
+                 [&](const NTL::GF2E &alpha) {
+                   NTL::GF2E s = NTL::eval(rec, alpha);
+                   allZero = allZero && NTL::IsZero(s);
+                   return s;
+                 });
 
   // no nonzero syndromes, r is a valid code
   if (allZero) {
@@ -232,7 +236,7 @@ std::optional<NTL::GF2EX> ReedSolomon::decodePGZ(NTL::GF2EX rec,
 std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX rec,
                                                 int *const resErrs) {
   // maximum correctable errors
-  // unsigned t = (N - K + 1) / 2;
+  unsigned t = (N - K + 1) / 2;
   std::vector<NTL::GF2E> syndromes(N - K);
 
   for (int i = 0; i < N - K; ++i) {
@@ -269,6 +273,13 @@ std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX rec,
     loc_r = locTmp;
   }
 
+  // too many errors to correct
+  if (NTL::deg(loc_r) > t) {
+    if (resErrs != nullptr)
+      *resErrs = -1;
+    return std::nullopt;
+  }
+
   std::vector<int> locs =
       findRootPows(NTL::VectorCopy(NTL::reverse(loc_r), NTL::deg(loc_r) + 1));
 
@@ -287,13 +298,23 @@ std::optional<NTL::GF2EX> ReedSolomon::decodeBM(NTL::GF2EX rec,
     NTL::SetCoeff(rec, locs[i], NTL::coeff(rec, locs[i]) - vals.value()[i]);
   }
 
+  // final sanity check, are syndromes zero now?
+  for (int i = 0; i < N - K; ++i) {
+    if (!NTL::IsZero(NTL::eval(rec, primPow[primRootOffset + i]))) {
+      if (resErrs != nullptr)
+        *resErrs = -1;
+      return std::nullopt;
+    }
+  }
+
   return rec;
 }
 
-std::vector<int> ReedSolomon::findRootPows(NTL::Vec<NTL::GF2E> v) {
+std::vector<int> ReedSolomon::findRootPows(const NTL::Vec<NTL::GF2E> &coeffs) {
+  NTL::Vec<NTL::GF2E> v = coeffs;
   std::unordered_set<int> s;
   for (int i = 0; i < N; ++i) {
-    if (NTL::IsZero(std::accumulate(v.begin(), v.end(), NTL::GF2E(0)))) {
+    if (NTL::IsZero(std::accumulate(v.begin(), v.end(), NTL::GF2E::zero()))) {
       s.insert(i);
     }
 
@@ -364,8 +385,12 @@ ReedSolomon::solveErrorValsForney(const NTL::GF2EX &locator,
 
     // Gill, John EE387, source from wikipedia. for non-1 offsets the first
     // term is necessary
+    NTL::GF2E l = NTL::eval(locatorDiff, locInv);
+    if (NTL::IsZero(l))
+      return std::nullopt;
+
     vals.push_back(NTL::power(loc, 1 - (int)primRootOffset) *
-                   NTL::eval(O, locInv) / NTL::eval(locatorDiff, locInv));
+                   NTL::eval(O, locInv) / l);
   }
 
   return vals;

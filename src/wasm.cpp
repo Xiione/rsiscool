@@ -3,14 +3,14 @@
 #include <emscripten/bind.h>
 #include "ReedSolomon.hpp"
 
-emscripten::val decodeWASM(emscripten::val bytes, int twoS) {
+// bytes: number[]
+emscripten::val decodeWASM(const emscripten::val &bytes, int twoS) {
   if (bytes == emscripten::val::null()) {
     return emscripten::val::null();
   }
 
   // https://github.com/emscripten-core/emscripten/issues/5519#issuecomment-333302296
-  emscripten::val heap = emscripten::val::module_property("HEAPU8");
-  emscripten::val memory = heap["buffer"];
+  emscripten::val memory = emscripten::val::module_property("HEAPU8")["buffer"];
   unsigned int length = bytes["length"].as<unsigned int>();
 
   std::vector<uint8_t> v;
@@ -22,14 +22,10 @@ emscripten::val decodeWASM(emscripten::val bytes, int twoS) {
   inMemView.call<void>("set", bytes);
 
 
-  std::reverse(v.begin(), v.end());
   auto res = decodeBytes(v, twoS);
-
   if (!res) {
     return emscripten::val::null();
   }
-
-  std::reverse(res->begin(), res->end());
 
   emscripten::val arr =
       emscripten::val::global("Uint8ClampedArray").new_(res->size());

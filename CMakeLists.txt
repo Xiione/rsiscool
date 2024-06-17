@@ -35,7 +35,7 @@ target_include_directories(
   deps/gf2x/fft
   ${EMSCRIPTEN_PATH}/libexec/system/include)
 
-target_compile_options(rsiscool PRIVATE -O2)
+target_compile_options(rsiscool PRIVATE -O3)
 set_target_properties(
   rsiscool
   PROPERTIES

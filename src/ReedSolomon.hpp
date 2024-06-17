@@ -19,7 +19,9 @@ struct ReedSolomon {
 
   ReedSolomon(int N, int K, int primPowOffset = 0);
 
+#ifdef RSISCOOL_ENCODE
   NTL::GF2EX encode(std::vector<NTL::GF2E> &input);
+#endif
 
   // returns nullopt if at least N - K errors => error cannot be solved for
   // uses linear solving for error vals
@@ -32,7 +34,7 @@ struct ReedSolomon {
 
   // chien search from wikipedia
   // give coefficients with index 0 as coefficient of x^0 term
-  std::vector<int> findRootPows(NTL::Vec<NTL::GF2E> coeffs);
+  std::vector<int> findRootPows(const NTL::Vec<NTL::GF2E> &coeffs);
 
   std::optional<std::vector<NTL::GF2E>>
   solveErrorVals(const std::vector<NTL::GF2E> &syndromes,
