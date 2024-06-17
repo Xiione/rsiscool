@@ -379,7 +379,6 @@ std::optional<std::vector<NTL::GF2E>>
 ReedSolomon::solveErrorValsForney(const NTL::GF2EX &locator,
                                   const std::vector<NTL::GF2E> &syndromes,
                                   const std::vector<int> &errorLocs) {
-  assert(syndromes.size() == N - K);
   NTL::GF2EX O;
 
   // initialize with syndrome polynomial
@@ -392,6 +391,7 @@ ReedSolomon::solveErrorValsForney(const NTL::GF2EX &locator,
   NTL::GF2EX locatorDiff = NTL::diff(locator);
 
   std::vector<NTL::GF2E> vals;
+  vals.resize(errorLocs.size());
   for (int i = 0; i < errorLocs.size(); ++i) {
     NTL::GF2E loc = primPow[errorLocs[i]];
     NTL::GF2E locInv = NTL::inv(loc);
@@ -402,8 +402,11 @@ ReedSolomon::solveErrorValsForney(const NTL::GF2EX &locator,
     if (NTL::IsZero(l))
       return std::nullopt;
 
-    vals.push_back(NTL::power(loc, 1 - (int)primRootOffset) *
-                   NTL::eval(O, locInv) / l);
+    if (primRootOffset == 0)
+      vals[i] = loc * NTL::eval(O, locInv) / l;
+    else
+      vals[i] = NTL::power(loc, 1 - (int)primRootOffset) *
+                     NTL::eval(O, locInv) / l;
   }
 
   return vals;
