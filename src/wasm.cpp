@@ -2,12 +2,13 @@
 #include <emscripten/bind.h>
 #include "ReedSolomon.hpp"
 
-// bytes: number[]
-emscripten::val decodeWASM(const emscripten::val &bytes, int twoS) {
-  if (bytes == emscripten::val::null()) {
-    return emscripten::val::null();
-  }
+struct DecodeResult {
+  int errors;
+  std::optional<std::vector<uint8_t>> bytesCorrected;
+};
 
+// bytes: number[]
+DecodeResult decodeWASM(const emscripten::val &bytes, int twoS) {
   // https://github.com/emscripten-core/emscripten/issues/5519#issuecomment-333302296
   emscripten::val memory = emscripten::val::module_property("HEAPU8")["buffer"];
   unsigned int length = bytes["length"].as<unsigned int>();
@@ -23,17 +24,17 @@ emscripten::val decodeWASM(const emscripten::val &bytes, int twoS) {
 
   int res = decodeBytes(v, twoS);
   if (res == -1) {
-    return emscripten::val::null();
+    return {res, std::nullopt};
   }
 
-  emscripten::val arr =
-      emscripten::val::global("Uint8ClampedArray").new_(v.size());
-  arr.call<void>("set", emscripten::val(emscripten::typed_memory_view(
-                            v.size(), v.data())));
-
-  return arr;
+  return {res, v};
 }
 
 EMSCRIPTEN_BINDINGS(rsiscool) {
+  emscripten::value_object<DecodeResult>("DecodeResult")
+    .field("errors", &DecodeResult::errors)
+    .field("bytesCorrected", &DecodeResult::bytesCorrected);
+  emscripten::register_vector<uint8_t>("Uint8Vector");
+  emscripten::register_optional<std::vector<uint8_t>>();
   emscripten::function("decodeWASM", &decodeWASM);
 }

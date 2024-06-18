@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5...3.28)
 
 project(
   rsiscool
-  VERSION 0.0.1
+  VERSION 0.0.2
   DESCRIPTION "RS Is Cool by Hamilton Wang")
 
 set(CMAKE_CXX_STANDARD 23)
@@ -40,7 +40,7 @@ find_package(doctest REQUIRED)
 target_link_libraries(rsiscool-tests PRIVATE galois doctest::doctest)
 target_compile_options(
   rsiscool-tests
-  PRIVATE -O0
+  PRIVATE -Og
           -g
           -Wall
           -Wextra
