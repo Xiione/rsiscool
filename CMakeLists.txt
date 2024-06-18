@@ -24,7 +24,7 @@ add_executable(rsiscool src/wasm.cpp ${LIB_SRC})
 
 include_directories(${EMSCRIPTEN_PATH}/libexec/system/include)
 target_link_libraries(rsiscool PRIVATE galois)
-target_compile_options(rsiscool PRIVATE -O3)
+target_compile_options(rsiscool PRIVATE -O3 -fno-exceptions)
 set_target_properties(
   rsiscool
   PROPERTIES

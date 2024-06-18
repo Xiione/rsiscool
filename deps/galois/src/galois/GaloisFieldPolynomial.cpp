@@ -271,7 +271,8 @@ GaloisFieldPolynomial::operator()(const GaloisFieldElement &value) const {
   if (poly.size() > 0) {
     result = poly[poly.size() - 1];
     for (std::size_t i = poly.size() - 2; static_cast<int>(i) >= 0; i--) {
-      result = poly[i] + (result * value);
+      result *= value;
+      result += poly[i];
     }
   }
   return result;
