@@ -28,8 +28,14 @@ target_compile_options(rsiscool PRIVATE -O3 -fno-exceptions)
 set_target_properties(
   rsiscool
   PROPERTIES
-    LINK_FLAGS
-    "-s ENVIRONMENT=web -s SINGLE_FILE=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s 'EXPORT_NAME=rsiscool' --bind --closure 1 -flto"
+    LINK_FLAGS "\
+    -s ENVIRONMENT=worker\
+    -s SINGLE_FILE=0\
+    -s MODULARIZE=1\
+    -s EXPORT_ES6=1\
+    -s 'EXPORT_NAME=rsiscool'\
+    --bind --closure 1 -flto\
+    "
 )
 
 add_executable(rsiscool-tests src/test.cpp ${LIB_SRC})
@@ -48,3 +54,4 @@ target_compile_options(
           -pedantic
           -Wno-missing-field-initializers
           -Wno-deprecated-declarations)
+
