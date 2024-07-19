@@ -35,13 +35,13 @@ int decodeBytes(std::vector<uint8_t> &bytes, int twoS) {
 
   GF2EX rec(rs.N - 1, coeffs.data());
 
-  int errors = -2;
+  int errors = -1;
   auto res = rs.decodeBM(rec, &errors);
-  if (!res)
-    return errors;
 
-  for (int i = 0; i < rs.N; ++i) {
-    bytes[rs.N - i - 1] = coeff(res.value(), i).poly();
+  if (res) {
+    for (int i = 0; i < rs.N; ++i) {
+      bytes[rs.N - i - 1] = coeff(res.value(), i).poly();
+    }
   }
   return errors;
 }

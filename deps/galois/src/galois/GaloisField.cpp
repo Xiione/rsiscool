@@ -14,6 +14,12 @@ GaloisField::GaloisField() : power(0), field_size(0) {
 
 GaloisField::GaloisField(const int pwr, const unsigned int *primitive_poly)
     : power(pwr), field_size((1 << power) - 1) {
+
+  std::cout << "[rsiscool] Using primitive polynomial [";
+  for (int i = 0; i <= pwr; i++)
+    std::cout << ' ' << primitive_poly[i];
+  std::cout << " ]" << std::endl;
+
   alpha_to = new GFSymbol[field_size + 1];
   index_of = new GFSymbol[field_size + 1];
 
