@@ -15,9 +15,9 @@ struct ReedSolomon {
   int K;
   int primRootOffset;
 
-  #ifdef RSISCOOL_ENCODE
+#ifdef RSISCOOL_ENCODE
   galois::GaloisFieldPolynomial genPoly;
-  #endif
+#endif
 
   ReedSolomon(int N, int K, int primPowOffset = 0);
 
@@ -51,6 +51,12 @@ struct ReedSolomon {
   solveErrorValsForney(galois::GaloisFieldPolynomial &locator,
                        std::vector<galois::GaloisFieldElement> &syndromes,
                        const std::vector<int> &errorLocs);
+
+  // returns whether not poly evaluated at roots of generator polynomial are all
+  // zero
+  bool checkSyndromes(galois::GaloisFieldPolynomial poly);
 };
 
+galois::GaloisFieldPolynomial bytesToGF2EX(std::vector<uint8_t> &bytes);
 int decodeBytes(std::vector<uint8_t> &bytes, int twoS);
+bool validateBytes(std::vector<uint8_t> &bytes, int twoS);

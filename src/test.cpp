@@ -96,6 +96,8 @@ TEST_CASE("jsQR test 104") {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
       CHECK(blocks[i][j] == expected[i][j]);
     }
+    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    REQUIRE(validated);
   }
 }
 
@@ -111,6 +113,8 @@ TEST_CASE("jsQR test 96 - location 1") {
     DOCTEST_INFO(format("Block {}", i + 1));
     int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
     CHECK(res == -1);
+    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    CHECK(!validated);
   }
 }
 
@@ -126,6 +130,8 @@ TEST_CASE("jsQR test 96 - location 1 mirrored") {
     DOCTEST_INFO(format("Block {}", i + 1));
     int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
     CHECK(res == -1);
+    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    CHECK(!validated);
   }
 }
 
@@ -181,6 +187,8 @@ TEST_CASE("jsQR test 96 - location 2") {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
       CHECK(blocks[i][j] == expected[i][j]);
     }
+    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    REQUIRE(validated);
   }
 }
 
@@ -224,6 +232,8 @@ TEST_CASE("jsQR test 174") {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
       CHECK(blocks[i][j] == expected[i][j]);
     }
+    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    REQUIRE(validated);
   }
 }
 
@@ -266,5 +276,7 @@ TEST_CASE("jsQR test 168") {
       DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
       CHECK(blocks[i][j] == expected[i][j]);
     }
+    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
+    REQUIRE(validated);
   }
 }
