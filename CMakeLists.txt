@@ -29,7 +29,6 @@ set_target_properties(
   rsiscool
   PROPERTIES
     LINK_FLAGS "\
-    -s ENVIRONMENT=worker\
     -s SINGLE_FILE=0\
     -s MODULARIZE=1\
     -s EXPORT_ES6=1\

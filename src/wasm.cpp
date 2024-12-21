@@ -7,7 +7,7 @@ struct DecodeResult {
   std::optional<std::vector<uint8_t>> bytesCorrected;
 };
 
-// bytes: number[]
+// bytes: Uint8Array
 DecodeResult decodeWASM(const emscripten::val &bytes, int twoS) {
   std::vector<uint8_t> v =
       emscripten::convertJSArrayToNumberVector<uint8_t>(bytes);
