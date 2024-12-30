@@ -54,3 +54,21 @@ target_compile_options(
           -Wno-missing-field-initializers
           -Wno-deprecated-declarations)
 
+
+add_executable(rsiscool-workers src/wasm.cpp ${LIB_SRC})
+
+target_link_libraries(rsiscool-workers PRIVATE galois)
+target_compile_options(rsiscool-workers PRIVATE -O3 -fno-exceptions)
+set_target_properties(
+  rsiscool-workers
+  PROPERTIES
+    LINK_FLAGS "\
+    -o rsiscool-workers.js\
+    -s ENVIRONMENT='web'\
+    -s SINGLE_FILE=0\
+    -s MODULARIZE=1\
+    -s EXPORT_ES6=1\
+    -s 'EXPORT_NAME=rsiscool'\
+    --bind --closure 1 -flto\
+    "
+)

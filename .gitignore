@@ -1,5 +1,6 @@
 /build
 /test
+/build-workers
 .cache
 compile_commands.json
 
@@ -7,3 +8,5 @@ compile_commands.json
 
 rsiscool.js
 rsiscool.wasm
+rsiscool-workers.js
+rsiscool-workers.wasm

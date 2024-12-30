@@ -11,10 +11,15 @@ all:
 	cd test && cmake .. -DCMAKE_TOOLCHAIN_FILE=clang.cmake
 	cmake --build test --target rsiscool-tests
 
+	mkdir -p build-workers/
+	cd build-workers && emcmake cmake ..
+	cmake --build build-workers --target rsiscool-workers
+
 	cp test/compile_commands.json .
 
 	cp build/rsiscool.js .
 	cp build/rsiscool.wasm .
+	cp build-workers/rsiscool-workers.js .
 
 build:
 	mkdir -p test/
