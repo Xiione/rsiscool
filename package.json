@@ -5,6 +5,7 @@
   "repository": "https://github.com/Xiione/rsiscool",
   "module": "./dist/index.js",
   "scripts": {
+    "prepare": "npm run build",
     "build": "make all"
   }
 }
