@@ -53,7 +53,7 @@ set_target_properties(
     -s EXPORT_ES6=1\
     -s 'EXPORT_NAME=rsiscool'\
     --emit-tsd 'rsiscool_workers.d.ts'\
-    --bind --closure 1 -flto\
+    -lembind --closure 1 -flto\
     "
 )
 
