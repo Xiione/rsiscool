@@ -13,6 +13,6 @@
   },
   "scripts": {
     "prepare": "npm run build",
-    "build": "make all"
+    "build": "make module"
   }
 }
