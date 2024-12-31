@@ -36,6 +36,7 @@ public:
   GaloisFieldPolynomial(const unsigned int size,
                         GaloisFieldElement *gfe = NULL);
   GaloisFieldPolynomial(const GaloisFieldPolynomial &polynomial);
+  GaloisFieldPolynomial(std::vector<GaloisFieldElement> &coeffs);
   GaloisFieldPolynomial(const GaloisFieldElement &gfe);
   ~GaloisFieldPolynomial() {};
 

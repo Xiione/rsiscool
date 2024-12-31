@@ -1,31 +1,40 @@
 #include "ReedSolomon.hpp"
+#include "wasm.hpp"
 #include <emscripten/bind.h>
+#include <cstdint>
+#include <optional>
+#include <string>
 #include <vector>
 
-struct DecodeResult {
-  int errors;
-  std::optional<std::vector<uint8_t>> bytesCorrected;
-};
+using GF2 = galois::GaloisField;
+using GF2E = galois::GaloisFieldElement;
+using GF2EX = galois::GaloisFieldPolynomial;
 
-// bytes: Uint8Array
-DecodeResult decodeWASM(const emscripten::val &bytes, int twoS) {
-  std::vector<uint8_t> v =
-      emscripten::convertJSArrayToNumberVector<uint8_t>(bytes);
+DecodeResult decodeWASM(const std::string &bytes, int twoS) {
+  ReedSolomon rs(bytes.size(), bytes.size() - twoS);
+  std::vector<uint8_t> v(bytes.begin(), bytes.end());
 
-  int res = decodeBytes(v, twoS);
-  if (res == -1) {
-    return {res, std::nullopt};
+  auto [errors, locs, vals] = rs.decodeBM(bytesToGF2EX(v));
+
+  if (!locs || !vals) {
+    return {errors, std::nullopt};
   }
 
-  return {res, v};
+  for (int i = 0; i < locs->size(); ++i) {
+    // reverse back to jsqr order
+    v[rs.N - locs->at(i) - 1] ^= vals->at(i).poly();
+  }
+
+  return {errors, v};
 }
 
-bool validateWASM(const emscripten::val &bytes, int twoS) {
-  std::vector<uint8_t> v =
-      emscripten::convertJSArrayToNumberVector<uint8_t>(bytes);
-  return validateBytes(v, twoS);
+bool validateWASM(const std::string &bytes, int twoS) {
+  ReedSolomon rs(bytes.size(), bytes.size() - twoS);
+  return rs.checkSyndromes(bytesToGF2EX(std::span<const uint8_t>(
+      reinterpret_cast<const uint8_t *>(bytes.data()), bytes.size())));
 }
 
+#ifndef RSISCOOL_NOEMBIND
 EMSCRIPTEN_BINDINGS(rsiscool) {
   emscripten::value_object<DecodeResult>("DecodeResult")
       .field("errors", &DecodeResult::errors)
@@ -35,3 +44,4 @@ EMSCRIPTEN_BINDINGS(rsiscool) {
   emscripten::function("decodeWASM", &decodeWASM);
   emscripten::function("validateWASM", &validateWASM);
 }
+#endif

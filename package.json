@@ -1,0 +1,10 @@
+{
+  "name": "rsiscool",
+  "version": "0.0.3",
+  "type": "module",
+  "repository": "https://github.com/Xiione/rsiscool",
+  "module": "./dist/index.js",
+  "scripts": {
+    "build": "make all"
+  }
+}

@@ -13,13 +13,16 @@ all:
 
 	mkdir -p build-workers/
 	cd build-workers && emcmake cmake ..
-	cmake --build build-workers --target rsiscool-workers
+	cmake --build build-workers --target rsiscool_workers
 
 	cp test/compile_commands.json .
 
-	cp build/rsiscool.js .
-	cp build/rsiscool.wasm .
-	cp build-workers/rsiscool-workers.js .
+	cp build/rsiscool.js dist/
+	cp build/rsiscool.d.ts dist/
+	cp build/rsiscool.wasm dist/
+
+	cp build-workers/rsiscool_workers.js dist/
+	cp build-workers/rsiscool_workers.d.ts dist/
 
 build:
 	mkdir -p test/

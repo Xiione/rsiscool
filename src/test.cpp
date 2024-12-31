@@ -1,7 +1,9 @@
+#include <string>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
 
 #include "ReedSolomon.hpp"
+#include "wasm.hpp"
 #include <format>
 
 using namespace std;
@@ -26,6 +28,42 @@ using namespace std;
 
 template <class T> using V = vector<T>;
 template <class T, size_t SZ> using ARR = array<T, SZ>;
+
+void testDecodeWASM(const V<V<uint8_t>> &blocks, const V<int> &dataSizes,
+                    const V<V<uint8_t>> &expected) {
+  V<V<uint8_t>> mutableBlocks = blocks;
+
+  rep0(i, sz(mutableBlocks)) {
+    DOCTEST_INFO(std::format("Block {}", i + 1));
+
+    auto [errors, corrected] = decodeWASM(string(all(mutableBlocks[i])),
+                                          sz(mutableBlocks[i]) - dataSizes[i]);
+    REQUIRE(corrected);
+
+    mutableBlocks[i] = *corrected;
+    REQUIRE(sz(mutableBlocks[i]) == sz(expected[i]));
+
+    rep0(j, sz(mutableBlocks[i])) {
+      DOCTEST_INFO(std::format("Byte {}, original = {}", j, blocks[i][j]));
+      CHECK(mutableBlocks[i][j] == expected[i][j]);
+    }
+
+    bool validated = validateWASM(string(all(mutableBlocks[i])),
+                                  sz(mutableBlocks[i]) - dataSizes[i]);
+    REQUIRE(validated);
+  }
+}
+
+void testDecodeWASMFailure(const V<V<uint8_t>> &blocks,
+                           const V<int> &dataSizes) {
+  rep0(i, sz(blocks)) {
+    DOCTEST_INFO(std::format("Block {}", i + 1));
+
+    auto [errors, corrected] =
+        decodeWASM(string(all(blocks[i])), sz(blocks[i]) - dataSizes[i]);
+    CHECK(!corrected);
+  }
+}
 
 /* A collection of problematic test cases from jsQR's test suites
  * Should cover the main regressions (fail decode, misdecode)
@@ -87,18 +125,7 @@ TEST_CASE("jsQR test 104") {
        236, 17, 6,   92,  222, 156, 198, 177, 9,   148, 181, 242, 235, 118,
        103, 70, 170, 204, 103, 164, 104, 218, 9,   219, 139, 90,  140, 145}};
 
-  rep0(i, sz(blocks)) {
-    DOCTEST_INFO(format("Block {}", i + 1));
-    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(res != -1);
-    CHECK(sz(blocks[i]) == sz(expected[i]));
-    rep0(j, sz(blocks[i])) {
-      DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
-      CHECK(blocks[i][j] == expected[i][j]);
-    }
-    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(validated);
-  }
+  testDecodeWASM(blocks, dataSizes, expected);
 }
 
 TEST_CASE("jsQR test 96 - location 1") {
@@ -109,13 +136,7 @@ TEST_CASE("jsQR test 96 - location 1") {
 
   V<int> dataSizes = {14};
 
-  rep0(i, sz(blocks)) {
-    DOCTEST_INFO(format("Block {}", i + 1));
-    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res == -1);
-    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(!validated);
-  }
+  testDecodeWASMFailure(blocks, dataSizes);
 }
 
 TEST_CASE("jsQR test 96 - location 1 mirrored") {
@@ -126,13 +147,7 @@ TEST_CASE("jsQR test 96 - location 1 mirrored") {
 
   V<int> dataSizes = {14};
 
-  rep0(i, sz(blocks)) {
-    DOCTEST_INFO(format("Block {}", i + 1));
-    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(res == -1);
-    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    CHECK(!validated);
-  }
+  testDecodeWASMFailure(blocks, dataSizes);
 }
 
 TEST_CASE("jsQR test 96 - location 2") {
@@ -178,18 +193,7 @@ TEST_CASE("jsQR test 96 - location 2") {
        236, 17,  236, 17,  146, 238, 77,  128, 238, 4,   79,
        158, 150, 174, 131, 177, 180, 9,   109, 115, 210, 49}};
 
-  rep0(i, sz(blocks)) {
-    DOCTEST_INFO(format("Block {}", i + 1));
-    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(res != -1);
-    CHECK(sz(blocks[i]) == sz(expected[i]));
-    rep0(j, sz(blocks[i])) {
-      DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
-      CHECK(blocks[i][j] == expected[i][j]);
-    }
-    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(validated);
-  }
+  testDecodeWASM(blocks, dataSizes, expected);
 }
 
 TEST_CASE("jsQR test 174") {
@@ -223,18 +227,7 @@ TEST_CASE("jsQR test 174") {
        153, 112, 78, 68,  133, 86,  123, 89,  31,  61,  155, 202, 146, 198, 168,
        207, 212, 24, 234, 58,  227, 44,  55,  215, 158, 205, 22,  217}};
 
-  rep0(i, sz(blocks)) {
-    DOCTEST_INFO(format("Block {}", i + 1));
-    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(res != -1);
-    CHECK(sz(blocks[i]) == sz(expected[i]));
-    rep0(j, sz(blocks[i])) {
-      DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
-      CHECK(blocks[i][j] == expected[i][j]);
-    }
-    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(validated);
-  }
+  testDecodeWASM(blocks, dataSizes, expected);
 }
 
 TEST_CASE("jsQR test 168") {
@@ -267,16 +260,5 @@ TEST_CASE("jsQR test 168") {
        23,  115, 68,  245, 125, 66,  203, 235, 85, 88,  174, 178,
        229, 181, 118, 148, 44,  175, 213, 243, 27, 215}};
 
-  rep0(i, sz(blocks)) {
-    DOCTEST_INFO(format("Block {}", i + 1));
-    int res = decodeBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(res != -1);
-    CHECK(sz(blocks[i]) == sz(expected[i]));
-    rep0(j, sz(blocks[i])) {
-      DOCTEST_INFO(format("Block {}, byte {}", i + 1, j));
-      CHECK(blocks[i][j] == expected[i][j]);
-    }
-    bool validated = validateBytes(blocks[i], sz(blocks[i]) - dataSizes[i]);
-    REQUIRE(validated);
-  }
+  testDecodeWASM(blocks, dataSizes, expected);
 }

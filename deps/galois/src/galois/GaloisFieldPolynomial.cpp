@@ -24,6 +24,11 @@ GaloisFieldPolynomial::GaloisFieldPolynomial(
   poly = polynomial.poly;
 }
 
+GaloisFieldPolynomial::GaloisFieldPolynomial(
+    std::vector<GaloisFieldElement> &coeffs) {
+  poly = std::move(coeffs);
+}
+
 GaloisFieldPolynomial::GaloisFieldPolynomial(const GaloisFieldElement &gfe) {
   poly.clear();
   poly.push_back(gfe);

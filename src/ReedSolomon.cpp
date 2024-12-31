@@ -2,6 +2,7 @@
 #include <cassert>
 #include <numeric>
 #include <optional>
+#include <span>
 #include <sys/types.h>
 #include <vector>
 
@@ -25,34 +26,13 @@ inline GF2E coeff(const GF2EX &a, long i) {
   return a[i];
 }
 
-GF2EX bytesToGF2EX(std::vector<uint8_t> &bytes) {
+GF2EX bytesToGF2EX(std::span<const uint8_t> bytes) {
   std::vector<GF2E> coeffs(bytes.size());
   // do reversing here
   std::transform(bytes.rbegin(), bytes.rend(), coeffs.begin(),
                  [](uint8_t b) { return GF2E(b); });
 
-  return GF2EX(bytes.size() - 1, coeffs.data());
-}
-
-int decodeBytes(std::vector<uint8_t> &bytes, int twoS) {
-  ReedSolomon rs(bytes.size(), bytes.size() - twoS);
-
-  int errors = -1;
-  auto res = rs.decodeBM(bytesToGF2EX(bytes), &errors);
-
-  if (res) {
-    for (int i = 0; i < rs.N; ++i) {
-      bytes[rs.N - i - 1] = coeff(res.value(), i).poly();
-    }
-  }
-  return errors;
-}
-
-bool validateBytes(std::vector<uint8_t> &bytes, int twoS) {
-  ReedSolomon rs(bytes.size(), bytes.size() - twoS);
-
-  GF2EX code = bytesToGF2EX(bytes);
-  return rs.checkSyndromes(code);
+  return GF2EX(coeffs);
 }
 
 ReedSolomon::ReedSolomon(int N, int K, int offset)
@@ -85,7 +65,7 @@ GF2EX ReedSolomon::encode(std::vector<GF2E> &input) {
 }
 #endif
 
-std::optional<GF2EX> ReedSolomon::decodeBM(GF2EX rec, int *const resErrs) {
+ReedSolomon::CorrectionResult ReedSolomon::decodeBM(GF2EX rec) {
   // maximum correctable errors
   unsigned t = (N - K + 1) / 2;
   std::vector<GF2E> syndromes(N - K);
@@ -126,9 +106,7 @@ std::optional<GF2EX> ReedSolomon::decodeBM(GF2EX rec, int *const resErrs) {
 
   // too many errors to correct
   if (loc_r.deg() > t) {
-    if (resErrs != nullptr)
-      *resErrs = -1;
-    return std::nullopt;
+    return {loc_r.deg(), std::nullopt, std::nullopt};
   }
 
   std::vector<int> locs = findRootPows(loc_r);
@@ -136,9 +114,7 @@ std::optional<GF2EX> ReedSolomon::decodeBM(GF2EX rec, int *const resErrs) {
   auto vals = solveErrorValsForney(loc_r, syndromes, locs);
 
   if (!vals) {
-    if (resErrs != nullptr)
-      *resErrs = -1;
-    return std::nullopt;
+    return {locs.size(), locs, std::nullopt};
   }
 
   for (int i = 0; i < locs.size(); ++i) {
@@ -149,14 +125,10 @@ std::optional<GF2EX> ReedSolomon::decodeBM(GF2EX rec, int *const resErrs) {
 
   // final sanity check, are syndromes zero now?
   if (!checkSyndromes(rec)) {
-    if (resErrs != nullptr)
-      *resErrs = -1;
-    return std::nullopt;
+    return {locs.size(), locs, std::nullopt};
   }
 
-  if (resErrs != nullptr)
-    *resErrs = locs.size();
-  return rec;
+  return {locs.size(), locs, vals};
 }
 
 std::vector<int> ReedSolomon::findRootPows(std::vector<GF2E> v) {
@@ -223,7 +195,7 @@ ReedSolomon::solveErrorValsForney(GF2EX &locator, std::vector<GF2E> &syndromes,
   return vals;
 }
 
-bool ReedSolomon::checkSyndromes(GF2EX poly) {
+bool ReedSolomon::checkSyndromes(const GF2EX &poly) {
   for (int i = 0; i < N - K; ++i) {
     if (poly(GF.alpha(primRootOffset + i)) != 0) {
       return false;

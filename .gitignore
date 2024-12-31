@@ -1,12 +1,16 @@
+/node_modules
 /build
 /test
 /build-workers
 .cache
 compile_commands.json
+pnpm-lock.yaml
 
 .DS_Store
 
 rsiscool.js
+rsiscool.d.ts
 rsiscool.wasm
-rsiscool-workers.js
-rsiscool-workers.wasm
+rsiscool_workers.js
+rsiscool_workers.d.ts
+rsiscool_workers.wasm

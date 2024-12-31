@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5...3.28)
 
 project(
   rsiscool
-  VERSION 0.0.2
+  VERSION 0.0.3
   DESCRIPTION "RS Is Cool by Hamilton Wang")
 
 set(CMAKE_CXX_STANDARD 23)
@@ -16,11 +16,11 @@ set(BREW_CELLAR /opt/homebrew/opt)
 set(EMSCRIPTEN_PATH ${BREW_CELLAR}/emscripten)
 
 # app
-set(LIB_SRC src/ReedSolomon.cpp)
+set(LIB_SRC src/ReedSolomon.cpp src/wasm.cpp)
 add_subdirectory(deps/galois)
 
 
-add_executable(rsiscool src/wasm.cpp ${LIB_SRC})
+add_executable(rsiscool ${LIB_SRC})
 
 include_directories(${EMSCRIPTEN_PATH}/libexec/system/include)
 target_link_libraries(rsiscool PRIVATE galois)
@@ -32,10 +32,31 @@ set_target_properties(
     -s SINGLE_FILE=0\
     -s MODULARIZE=1\
     -s EXPORT_ES6=1\
+    -s EXPORT_NAME='rsiscool'\
+    --emit-tsd 'rsiscool.d.ts'\
+    -lembind --closure 1 -flto\
+    "
+)
+
+
+add_executable(rsiscool_workers ${LIB_SRC})
+
+target_link_libraries(rsiscool_workers PRIVATE galois)
+target_compile_options(rsiscool_workers PRIVATE -O3 -fno-exceptions)
+set_target_properties(
+  rsiscool_workers
+  PROPERTIES
+    LINK_FLAGS "\
+    -s ENVIRONMENT='web'\
+    -s SINGLE_FILE=0\
+    -s MODULARIZE=1\
+    -s EXPORT_ES6=1\
     -s 'EXPORT_NAME=rsiscool'\
+    --emit-tsd 'rsiscool_workers.d.ts'\
     --bind --closure 1 -flto\
     "
 )
+
 
 add_executable(rsiscool-tests src/test.cpp ${LIB_SRC})
 
@@ -45,7 +66,8 @@ find_package(doctest REQUIRED)
 target_link_libraries(rsiscool-tests PRIVATE galois doctest::doctest)
 target_compile_options(
   rsiscool-tests
-  PRIVATE -Og
+  PRIVATE -DRSISCOOL_NOEMBIND
+          -Og
           -g
           -Wall
           -Wextra
@@ -53,22 +75,3 @@ target_compile_options(
           -pedantic
           -Wno-missing-field-initializers
           -Wno-deprecated-declarations)
-
-
-add_executable(rsiscool-workers src/wasm.cpp ${LIB_SRC})
-
-target_link_libraries(rsiscool-workers PRIVATE galois)
-target_compile_options(rsiscool-workers PRIVATE -O3 -fno-exceptions)
-set_target_properties(
-  rsiscool-workers
-  PROPERTIES
-    LINK_FLAGS "\
-    -o rsiscool-workers.js\
-    -s ENVIRONMENT='web'\
-    -s SINGLE_FILE=0\
-    -s MODULARIZE=1\
-    -s EXPORT_ES6=1\
-    -s 'EXPORT_NAME=rsiscool'\
-    --bind --closure 1 -flto\
-    "
-)
