@@ -7,9 +7,7 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js"
-    }
+    ".": "./dist/index.js"
   },
   "scripts": {
     "prepare": "npm run build",
