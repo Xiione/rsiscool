@@ -12,10 +12,10 @@
     "./rsiscool_workers": "./dist/rsiscool_workers.js"
   },
   "scripts": {
-    "prepare": "npx emsdk-checkout && npm run build",
+    "prepare": "npx emsdk-checkout && npx emsdk install 3.1.74 && npx emsdk activate 3.1.74 && npm run build",
     "build": "make module"
   },
   "devDependencies": {
-    "emscripten-sdk-npm": "^0.3.2"
+    "emscripten-sdk-npm": "github:devappd/emscripten-sdk-npm#dc1bf3e"
   }
 }
