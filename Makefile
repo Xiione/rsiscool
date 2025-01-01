@@ -3,9 +3,9 @@
 EXECUTABLE = test/rsiscool-tests
 
 prepare:
-	npx emsdk-checkout
-	npx emsdk install 3.1.74
-	npx emsdk activate 3.1.74
+	# npx emsdk-checkout
+	# npx emsdk install 3.1.74
+	# npx emsdk activate 3.1.74
 
 tests:
 	mkdir -p test/
@@ -16,7 +16,8 @@ tests:
 
 module:
 	mkdir -p build/
-	pnpm exec emsdk-run emcmake cmake -B build -S .
+	# pnpm exec emsdk-run emcmake cmake -B build -S .
+	emcmake cmake -B build -S .
 	cmake --build build --target rsiscool
 
 	cp build/rsiscool.js dist/
@@ -24,7 +25,8 @@ module:
 	cp build/rsiscool.wasm dist/
 
 	mkdir -p build-workers/
-	pnpm exec emsdk-run emcmake cmake -B build-workers -S .
+	# pnpm exec emsdk-run emcmake cmake -B build-workers -S .
+	emcmake cmake -B build-workers -S .
 	cmake --build build-workers --target rsiscool_workers
 
 	cp build-workers/rsiscool_workers.js dist/
