@@ -12,7 +12,7 @@
     "./rsiscool_workers": "./dist/rsiscool_workers.js"
   },
   "scripts": {
-    "prepare": "npm run build && npx emsdk-checkout",
+    "prepare": "npx emsdk-checkout && npm run build",
     "build": "make module"
   },
   "devDependencies": {
