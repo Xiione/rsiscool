@@ -8,11 +8,5 @@ pnpm-lock.yaml
 
 .DS_Store
 
-rsiscool.js
-rsiscool.d.ts
-rsiscool.wasm
-rsiscool_workers.js
-rsiscool_workers.d.ts
-rsiscool_workers.wasm
 CMakeCache.txt
 cmake_install.cmake
