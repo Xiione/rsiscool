@@ -3,11 +3,10 @@
 EXECUTABLE = test/rsiscool-tests
 
 prepare:
-	chmod +x $(which cmake)
 	npx emsdk-checkout
 	npx emsdk install 3.1.74
 	npx emsdk activate 3.1.74
-	npm run build
+	make build
 
 tests:
 	mkdir -p test/
