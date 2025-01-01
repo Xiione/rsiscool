@@ -11,7 +11,7 @@ tests:
 
 module:
 	mkdir -p build/
-	cd build && emcmake cmake ..
+	pnpm exec emcmake cmake -B build -S .
 	cmake --build build --target rsiscool
 
 	cp build/rsiscool.js dist/
@@ -19,7 +19,7 @@ module:
 	cp build/rsiscool.wasm dist/
 
 	mkdir -p build-workers/
-	cd build-workers && emcmake cmake ..
+	pnpm exec emcmake cmake -B build-workers -S .
 	cmake --build build-workers --target rsiscool_workers
 
 	cp build-workers/rsiscool_workers.js dist/

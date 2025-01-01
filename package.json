@@ -14,5 +14,8 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "make module"
+  },
+  "devDependencies": {
+    "emscripten-sdk-npm": "^0.3.2"
   }
 }

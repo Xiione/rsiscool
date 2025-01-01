@@ -14,3 +14,5 @@ rsiscool.wasm
 rsiscool_workers.js
 rsiscool_workers.d.ts
 rsiscool_workers.wasm
+CMakeCache.txt
+cmake_install.cmake
