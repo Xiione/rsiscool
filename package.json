@@ -12,7 +12,7 @@
     "./rsiscool_workers": "./dist/rsiscool_workers.js"
   },
   "scripts": {
-    "prepare": "./build_module.sh",
+    "preinstall": "which emcmake; which cmake; ./build_module.sh",
     "build": "make module"
   }
 }
