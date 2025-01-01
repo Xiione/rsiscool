@@ -11,7 +11,7 @@ tests:
 
 module:
 	mkdir -p build/
-	pnpm exec emcmake cmake -B build -S .
+	pnpm exec emsdk-run emcmake cmake -B build -S .
 	cmake --build build --target rsiscool
 
 	cp build/rsiscool.js dist/
@@ -19,7 +19,7 @@ module:
 	cp build/rsiscool.wasm dist/
 
 	mkdir -p build-workers/
-	pnpm exec emcmake cmake -B build-workers -S .
+	pnpm exec emsdk-run emcmake cmake -B build-workers -S .
 	cmake --build build-workers --target rsiscool_workers
 
 	cp build-workers/rsiscool_workers.js dist/
@@ -32,6 +32,11 @@ build:
 all:
 	make tests
 	make module
+
+clean:
+	rm -rf ./build
+	rm -rf ./build-workers
+	rm -rf ./test
 
 run:
 	$(EXECUTABLE)
