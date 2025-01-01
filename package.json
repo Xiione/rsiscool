@@ -12,10 +12,7 @@
     "./rsiscool_workers": "./dist/rsiscool_workers.js"
   },
   "scripts": {
-    "prepare": "make module",
+    "prepare": "./build_module.sh",
     "build": "make module"
-  },
-  "devDependencies": {
-    "emscripten-sdk-npm": "github:devappd/emscripten-sdk-npm#dc1bf3e"
   }
 }
