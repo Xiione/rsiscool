@@ -6,7 +6,6 @@ prepare:
 	npx emsdk-checkout
 	npx emsdk install 3.1.74
 	npx emsdk activate 3.1.74
-	make build
 
 tests:
 	mkdir -p test/

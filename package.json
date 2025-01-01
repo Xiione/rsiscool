@@ -12,7 +12,7 @@
     "./rsiscool_workers": "./dist/rsiscool_workers.js"
   },
   "scripts": {
-    "prepare": "make prepare",
+    "prepare": "make prepare && make module",
     "build": "make module"
   },
   "devDependencies": {
