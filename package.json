@@ -9,7 +9,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./rsiscool": "./dist/rsiscool.js",
-    "./rsiscool_workers": "./dist/rsiscool_workers.js"
+    "./rsiscool_workers": "./dist/rsiscool_workers.js",
+    "./rsiscool.wasm": "./dist/rsiscool.wasm"
   },
   "scripts": {
     "build": "make module"
