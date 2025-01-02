@@ -4,7 +4,7 @@ EXECUTABLE = test/rsiscool-tests
 
 tests:
 	mkdir -p test/
-	cd test && cmake .. -DCMAKE_TOOLCHAIN_FILE=clang.cmake
+	cmake -B test -S . -DCMAKE_TOOLCHAIN_FILE=clang.cmake
 	cmake --build test --target rsiscool-tests
 
 	cp test/compile_commands.json .
@@ -24,7 +24,6 @@ module:
 
 	cp build-workers/rsiscool_workers.js dist/
 	cp build-workers/rsiscool_workers.d.ts dist/
-	cp build-workers/rsiscool_workers.wasm dist/
 
 build:
 	make tests

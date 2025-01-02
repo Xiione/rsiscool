@@ -10,3 +10,4 @@ pnpm-lock.yaml
 
 CMakeCache.txt
 cmake_install.cmake
+CMakeFiles
