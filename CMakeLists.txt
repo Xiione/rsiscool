@@ -47,7 +47,7 @@ set_target_properties(
   rsiscool_workers
   PROPERTIES
     LINK_FLAGS "\
-    -s ENVIRONMENT='web'\
+    -s ENVIRONMENT='node'\
     -s SINGLE_FILE=0\
     -s MODULARIZE=1\
     -s EXPORT_ES6=1\
