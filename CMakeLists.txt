@@ -29,6 +29,7 @@ set_target_properties(
   rsiscool
   PROPERTIES
     LINK_FLAGS "\
+    --no-entry\
     -s SINGLE_FILE=0\
     -s EXPORT_ES6=1\
     -s MODULARIZE=1\
@@ -47,6 +48,7 @@ set_target_properties(
   rsiscool_workers
   PROPERTIES
     LINK_FLAGS "\
+    --no-entry\
     -s ENVIRONMENT='web'\
     -s SINGLE_FILE=0\
     -s MODULARIZE=1\
