@@ -49,8 +49,10 @@ set_target_properties(
   PROPERTIES
     LINK_FLAGS "\
     --no-entry\
+    -s DYNAMIC_EXECUTION=0\
+    -s EMBIND_AOT=1\
     -s ENVIRONMENT='web'\
-    -s SINGLE_FILE=0\
+    -s SINGLE_FILE=1\
     -s MODULARIZE=1\
     -s EXPORT_ES6=1\
     -s 'EXPORT_NAME=rsiscool'\
