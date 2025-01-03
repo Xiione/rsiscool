@@ -30,11 +30,11 @@ set_target_properties(
   PROPERTIES
     LINK_FLAGS "\
     -s SINGLE_FILE=0\
-    -s MODULARIZE=1\
     -s EXPORT_ES6=1\
-    -s EXPORT_NAME='rsiscool'\
+    -s MODULARIZE=1\
+    -s 'EXPORT_NAME=rsiscool'\
     --emit-tsd 'rsiscool.d.ts'\
-    -lembind --closure 1 -flto\
+    -lembind -flto\
     "
 )
 
@@ -48,12 +48,12 @@ set_target_properties(
   PROPERTIES
     LINK_FLAGS "\
     -s ENVIRONMENT='web'\
-    -s SINGLE_FILE=1\
+    -s SINGLE_FILE=0\
     -s MODULARIZE=1\
     -s EXPORT_ES6=1\
     -s 'EXPORT_NAME=rsiscool'\
     --emit-tsd 'rsiscool_workers.d.ts'\
-    -lembind --closure 1 -flto\
+    -lembind -flto\
     "
 )
 

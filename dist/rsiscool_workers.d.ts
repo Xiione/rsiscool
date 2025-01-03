@@ -16,13 +16,19 @@ interface WasmModule {
 }
 
 type EmbindString = ArrayBuffer|Uint8Array|Uint8ClampedArray|Int8Array|string;
-export interface Uint8Vector {
+export interface ClassHandle {
+  isAliasOf(other: ClassHandle): boolean;
+  delete(): void;
+  deleteLater(): this;
+  isDeleted(): boolean;
+  clone(): this;
+}
+export interface Uint8Vector extends ClassHandle {
   push_back(_0: number): void;
   resize(_0: number, _1: number): void;
   size(): number;
   get(_0: number): number | undefined;
   set(_0: number, _1: number): boolean;
-  delete(): void;
 }
 
 export type DecodeResult = {
@@ -31,7 +37,9 @@ export type DecodeResult = {
 };
 
 interface EmbindModule {
-  Uint8Vector: {new(): Uint8Vector};
+  Uint8Vector: {
+    new(): Uint8Vector;
+  };
   decodeWASM(_0: EmbindString, _1: number): DecodeResult;
   validateWASM(_0: EmbindString, _1: number): boolean;
 }
