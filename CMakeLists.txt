@@ -33,6 +33,7 @@ set_target_properties(
     -s SINGLE_FILE=0\
     -s EXPORT_ES6=1\
     -s MODULARIZE=1\
+    -s EMBIND_STD_STRING_IS_UTF8=0\
     -s 'EXPORT_NAME=rsiscool'\
     --emit-tsd 'rsiscool.d.ts'\
     -lembind -flto\
@@ -55,6 +56,7 @@ set_target_properties(
     -s SINGLE_FILE=0\
     -s MODULARIZE=1\
     -s EXPORT_ES6=1\
+    -s EMBIND_STD_STRING_IS_UTF8=0\
     -s 'EXPORT_NAME=rsiscool'\
     --emit-tsd 'rsiscool_workers.d.ts'\
     -lembind -flto\
