@@ -6,10 +6,6 @@
 #include <string>
 #include <vector>
 
-using GF2 = galois::GaloisField;
-using GF2E = galois::GaloisFieldElement;
-using GF2EX = galois::GaloisFieldPolynomial;
-
 DecodeResult decodeWASM(const std::string &bytes, int twoS) {
   ReedSolomon rs(bytes.size(), bytes.size() - twoS);
   std::vector<uint8_t> v(bytes.begin(), bytes.end());

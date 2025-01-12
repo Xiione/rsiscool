@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5...3.28)
 
 project(
   rsiscool
-  VERSION 0.0.3
+  VERSION 0.0.4
   DESCRIPTION "RS Is Cool by Hamilton Wang")
 
 set(CMAKE_CXX_STANDARD 23)
