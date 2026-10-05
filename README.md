@@ -53,7 +53,7 @@ Link flags:
 - `-lembind`: Same as `rsiscool`.
 
 ## Credits
-- The C++ library implementating Galois fields and Galois field polynomials included directly in this repository was made by Arash Partow. It was downloaded from the ["Galois Field Arithmetic Library" webpage](https://www.partow.net/projects/galois/) on Arash Partow's website.  
+- The C++ library implementing Galois fields and Galois field polynomials included directly in this repository was made by Arash Partow and is distributed under the Common Public License 1.0 (CPL-1.0; see [LICENSE](LICENSE)). It was downloaded from the ["Galois Field Arithmetic Library" webpage](https://www.partow.net/projects/galois/) on Arash Partow's website.
 - [doctest](https://github.com/doctest/doctest) is used for the tests in this project. For local development it was installed via homebrew.  
 - Credit to a minimal example given in [a repo created by robertaboukhalil](https://github.com/robertaboukhalil/cf-workers-emscripten) for helping me get WASM to work in Workers.
 - Prior versions of this library also used [NTL](https://github.com/libntl/ntl) or [Givaro](https://github.com/linbox-team/givaro) for their implementations of finite fields and linear algebra in fields.
