@@ -13,6 +13,7 @@
 
 #include "ReedSolomon.hpp"
 
+// naming from NTL that I got too used to
 using GF2 = galois::GaloisField;
 using GF2E = galois::GaloisFieldElement;
 using GF2EX = galois::GaloisFieldPolynomial;
