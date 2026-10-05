@@ -1,8 +1,14 @@
 {
   "name": "rsiscool",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "repository": "https://github.com/Xiione/rsiscool",
+  "license": "CPL-1.0",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,9 +16,11 @@
     ".": "./dist/index.js",
     "./rsiscool": "./dist/rsiscool.js",
     "./rsiscool_workers": "./dist/rsiscool_workers.js",
-    "./rsiscool.wasm": "./dist/rsiscool.wasm"
+    "./rsiscool.wasm": "./dist/rsiscool.wasm",
+    "./rsiscool_workers.wasm": "./dist/rsiscool_workers.wasm"
   },
   "scripts": {
-    "build": "make module"
+    "build": "make module",
+    "prepack": "npm run build"
   }
 }

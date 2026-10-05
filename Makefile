@@ -24,6 +24,7 @@ module:
 
 	cp build-workers/rsiscool_workers.js dist/
 	cp build-workers/rsiscool_workers.d.ts dist/
+	cp build-workers/rsiscool_workers.wasm dist/
 
 build:
 	make tests
