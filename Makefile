@@ -1,6 +1,10 @@
 .PHONY: build
 
 EXECUTABLE = test/rsiscool-tests
+EMSCRIPTEN_ROOT := $(shell em-config EMSCRIPTEN_ROOT)
+EMSCRIPTEN_BUILD_ID := $(notdir $(patsubst %/,%,$(dir $(EMSCRIPTEN_ROOT))))
+BUILD_DIR := build/$(EMSCRIPTEN_BUILD_ID)
+WORKERS_BUILD_DIR := build-workers/$(EMSCRIPTEN_BUILD_ID)
 
 tests:
 	mkdir -p test/
@@ -10,21 +14,21 @@ tests:
 	cp test/compile_commands.json .
 
 module:
-	mkdir -p build/
-	emcmake cmake -B build -S .
-	cmake --build build --target rsiscool
+	mkdir -p $(BUILD_DIR)
+	emcmake cmake -B $(BUILD_DIR) -S .
+	cmake --build $(BUILD_DIR) --target rsiscool
 
-	cp build/rsiscool.js dist/
-	cp build/rsiscool.d.ts dist/
-	cp build/rsiscool.wasm dist/
+	cp $(BUILD_DIR)/rsiscool.js dist/
+	cp $(BUILD_DIR)/rsiscool.d.ts dist/
+	cp $(BUILD_DIR)/rsiscool.wasm dist/
 
-	mkdir -p build-workers/
-	emcmake cmake -B build-workers -S .
-	cmake --build build-workers --target rsiscool_workers
+	mkdir -p $(WORKERS_BUILD_DIR)
+	emcmake cmake -B $(WORKERS_BUILD_DIR) -S .
+	cmake --build $(WORKERS_BUILD_DIR) --target rsiscool_workers
 
-	cp build-workers/rsiscool_workers.js dist/
-	cp build-workers/rsiscool_workers.d.ts dist/
-	cp build-workers/rsiscool_workers.wasm dist/
+	cp $(WORKERS_BUILD_DIR)/rsiscool_workers.js dist/
+	cp $(WORKERS_BUILD_DIR)/rsiscool_workers.d.ts dist/
+	cp $(WORKERS_BUILD_DIR)/rsiscool_workers.wasm dist/
 
 build:
 	make tests
